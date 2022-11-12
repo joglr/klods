@@ -39,10 +39,14 @@ interface ISquare {
 }
 
 function Square({ square }: {square: ISquare | null}) {
-  if (square === null) return null
-  const { hue } = square
+  const props = square ? {
+    style: { "--hue": square.hue, } as CSSProperties,
+    className: "square filled"
+  } : {
+    className: "square"
+  }
 
-  return <div className="square" style={{ "--hue": hue, } as CSSProperties} />
+  return <div {...props} />
 }
 
 const boardSize = 8
@@ -56,7 +60,9 @@ const initialState : {
 } = {
   // 2D array containing board state
   highscore: 0,
-  board: Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({ hue: (i * 60) % 360 })),
+  board:
+    Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => (null)),
+  // Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({ hue: (i * 60) % 360 })),
   userPieces: getNewPieces(),
   selectedPiece: null,
   score: 0

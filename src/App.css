@@ -22,14 +22,18 @@
 
 .board {
   aspect-ratio: 1;
-  padding: 1vh;
-  outline: 1px red solid;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
+
+  outline: 2px grey solid;
 }
 
 .square {
+  outline: 1px grey solid;
+}
+
+.filled {
   color: hsl(var(--hue) 100% 40%);
   background-color: currentColor;
   border: 0.8vh currentColor solid;
