@@ -21,7 +21,21 @@ export default function App() {
       <div className="board">
         {state.board.map((square, i) => <Square key={i}square={square} />)}
       </div>
-      <div className="user-pieces"></div>
+      <div className="user-pieces">
+        {state.userPieces.map((piece, i) =>
+          <div key={i} className="piece" style={{
+            gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
+            gridTemplateRows: `repeat(${piece.length}, 1fr)`,
+          }}>
+            {piece.map((rows, j) => (
+              <>
+                {rows.map((fill, k) => <Square key={k} square={fill === 1 ? {
+                  hue: 100,
+                } : null} />)}
+              </>))
+            }
+        </div>)}
+      </div>
     </div>
   )
 }
