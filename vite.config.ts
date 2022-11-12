@@ -13,6 +13,7 @@ export default defineConfig({
         short_name: "Klods",
         start_url: "/",
         display: "standalone",
+        theme_color: "#00cc00",
         icons: [
           {
             src: "/icons/klods-64x.png",
