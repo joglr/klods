@@ -46,4 +46,20 @@
 
 .user-pieces {
   height: 25vh;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2vh;
+  flex-direction: row;
+  place-items: center;
+}
+
+.piece {
+  display: grid;
+}
+
+.piece .square {
+  height: 4vh;
+  width: 4vh;
+  border-width: 0.75vh;
 }
