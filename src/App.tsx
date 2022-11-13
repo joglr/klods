@@ -1,6 +1,8 @@
-import { CSSProperties, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
+import { ISquare } from './model'
+import { Square } from './components/Square'
 
 export default function App() {
   const [state, setState] = useState(initialState)
@@ -31,7 +33,7 @@ export default function App() {
               <>
                 {rows.map((fill, k) => <Square key={k} square={fill === 1 ? {
                   hue: 100,
-                } : null} />)}
+                } : null} title={`Piece ${i}`} />)}
               </>))
             }
         </div>)}
@@ -40,28 +42,6 @@ export default function App() {
   )
 }
 
-const hues = [
-  0,
-  60,
-  120,
-  180,
-  300
-]
-
-interface ISquare {
-  hue: number
-}
-
-function Square({ square }: {square: ISquare | null}) {
-  const props = square ? {
-    style: { "--hue": square.hue, } as CSSProperties,
-    className: "square filled"
-  } : {
-    className: "square"
-  }
-
-  return <div {...props} />
-}
 
 const boardSize = 8
 
