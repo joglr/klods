@@ -6,6 +6,10 @@ import { Square } from './components/Square'
 
 export default function App() {
   const [state, setState] = useState(initialState)
+  const [mousePos, setMousePos] = useState({
+    offset: [0, 0],
+    pos: [0, 0]
+  })
 
   const resetGame = () => setState(prevState => ({
     ...initialState,
@@ -13,11 +17,16 @@ export default function App() {
   }))
 
   return (
-    <div className="app">
+    <div className="app"
+      onPointerUp={() => setState(prevState => ({...prevState, selectedPiece: null }))}
+      onPointerMove={e => setMousePos(p => ({...p, pos: [e.pageX, e.pageY] }))}
+      >
       <header className="header">
         <h1>Klods</h1>
         <div>Score: {state.score}</div>
         <div>High Score: {state.highscore}</div>
+        {/* <div>Mouse: {mousePos.pos.join(", ")}</div>
+        <div>Offset: {mousePos.offset.join(", ")}</div> */}
         <button onClick={resetGame}>Reset game</button>
       </header>
       <div className="board">
@@ -25,10 +34,25 @@ export default function App() {
       </div>
       <div className="user-pieces">
         {state.userPieces.map((piece, i) =>
-          <div key={i} className="piece" style={{
-            gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
-            gridTemplateRows: `repeat(${piece.length}, 1fr)`,
-          }}>
+          <div key={i} className="piece"
+            style={{
+              gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
+              gridTemplateRows: `repeat(${piece.length}, 1fr)`,
+              ...state.selectedPiece === i ? {
+                transform: `translate(${mousePos.pos[0] - mousePos.offset[0]}px,${mousePos.pos[1] - mousePos.offset[1]}px)`,
+              } : {
+
+              }
+            }}
+            onPointerDown={e => {
+              setState(prevState => ({...prevState, selectedPiece: i }))
+              setMousePos({
+                offset: [e.pageX, e.pageY],
+                pos: [e.pageX, e.pageY]
+              })
+              e.preventDefault()
+            }}
+          >
             {piece.map((rows, j) => (
               <>
                 {rows.map((fill, k) => <Square key={k} square={fill === 1 ? {
@@ -49,7 +73,7 @@ const initialState : {
   highscore: number,
   board: (ISquare | null)[],
   userPieces: number[][][],
-  selectedPiece: null | number[][],
+  selectedPiece: null | number,
   score: 0
 } = {
   // 2D array containing board state
