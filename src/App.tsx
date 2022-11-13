@@ -5,14 +5,14 @@ import { ISquare } from './model'
 import { Square } from './components/Square'
 
 export default function App() {
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useState<State>(getInitialState)
   const [mousePos, setMousePos] = useState({
     offset: [0, 0],
     pos: [0, 0]
   })
 
   const resetGame = () => setState(prevState => ({
-    ...initialState,
+    ...getInitialState(),
     highscore: Math.max(prevState.highscore, prevState.score)
   }))
 
@@ -69,13 +69,15 @@ export default function App() {
 
 const boardSize = 8
 
-const initialState : {
-  highscore: number,
-  board: (ISquare | null)[],
-  userPieces: number[][][],
-  selectedPiece: null | number,
+interface State {
+  highscore: number
+  board: (ISquare | null)[]
+  userPieces: number[][][]
+  selectedPiece: null | number
   score: 0
-} = {
+}
+
+const getInitialState: () => State = () => ({
   // 2D array containing board state
   highscore: 0,
   board:
@@ -84,7 +86,7 @@ const initialState : {
   userPieces: getNewPieces(),
   selectedPiece: null,
   score: 0
-}
+})
 
 /*
 1. Setup
