@@ -1,3 +1,5 @@
+export const boardSize = 8
+
 export const hues = [
   0,
   60,

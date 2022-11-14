@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
-import { ISquare } from './model'
+import type { IState } from './model'
 import { Square } from './components/Square'
+import { checkIfPieceFits, createEmptyBoard } from './util'
+import { boardSize } from './constants'
 
 export default function App() {
-  const [state, setState] = useState<State>(getInitialState)
+  const [state, setState] = useState<IState>(getInitialState)
   const [mousePos, setMousePos] = useState({
     offset: [0, 0],
     pos: [0, 0]
@@ -18,19 +20,50 @@ export default function App() {
 
   return (
     <div className="app"
-      onPointerUp={() => setState(prevState => ({...prevState, selectedPiece: null }))}
-      onPointerMove={e => setMousePos(p => ({...p, pos: [e.pageX, e.pageY] }))}
+      onPointerMove={e =>
+        {
+          if (state.selectedPiece == null ) return
+          e.preventDefault()
+          return setMousePos(p => ({ ...p, pos: [e.pageX, e.pageY] }))
+        }
+      }
+      onPointerUp={() => {
+        if(state.selectedPiece == null) return
+        setState(p => ({...p, selectedPiece: null}))
+      }}
       >
       <header className="header">
         <h1>Klods</h1>
-        <div>Score: {state.score}</div>
-        <div>High Score: {state.highscore}</div>
-        {/* <div>Mouse: {mousePos.pos.join(", ")}</div>
-        <div>Offset: {mousePos.offset.join(", ")}</div> */}
+        {/* <div>Score: {state.score}</div>
+        <div>High Score: {state.highscore}</div> */}
+        {Object.entries(state).map(([key, value]) => (
+          <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
+        ))}
+        <div>{state.selectedPiece?.location.join(",")}</div>
         <button onClick={resetGame}>Reset game</button>
       </header>
-      <div className="board">
-        {state.board.map((square, i) => <Square key={i}square={square} />)}
+      <div
+        className="board"
+        onPointerMove={() => {
+          // console.log("moving over board")
+          // TODO: Check if it can be placed here
+          // TODO: If it can be placed, draw it
+        }}
+      >
+        {state.board.map((square, i) =>
+          <Square
+            key={i}
+            square={square}
+            onPointerUp={() => {
+              if (state.selectedPiece == null) return
+              setState(prevState => ({
+                ...prevState,
+                selectedPiece: null,
+
+              }))
+            }}
+          />
+        )}
       </div>
       <div className="user-pieces">
         {state.userPieces.map((piece, i) =>
@@ -38,26 +71,42 @@ export default function App() {
             style={{
               gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
               gridTemplateRows: `repeat(${piece.length}, 1fr)`,
-              ...state.selectedPiece === i ? {
+              ...state.selectedPiece?.index === i ? {
                 transform: `translate(${mousePos.pos[0] - mousePos.offset[0]}px,${mousePos.pos[1] - mousePos.offset[1]}px)`,
-              } : {
-
-              }
-            }}
-            onPointerDown={e => {
-              setState(prevState => ({...prevState, selectedPiece: i }))
-              setMousePos({
-                offset: [e.pageX, e.pageY],
-                pos: [e.pageX, e.pageY]
-              })
-              e.preventDefault()
+                pointerEvents: "none"
+              } : {}
             }}
           >
             {piece.map((rows, j) => (
               <>
-                {rows.map((fill, k) => <Square key={k} square={fill === 1 ? {
-                  hue: 100,
-                } : null} title={`Piece ${i}`} />)}
+                {rows.map((fill, k) =>
+                  <Square
+                    key={k}
+                    square={
+                      fill === 1 ?
+                        state.selectedPiece?.location.join(",") === `${j},${k}` &&
+                        state.selectedPiece.index === i
+                          ? { hue: 200 }
+                          : { hue: 100 }
+                        : null
+                    }
+                    title={`${j},${k}`}
+                    onPointerDown={e => {
+                      setState(prevState => ({
+                        ...prevState,
+                        selectedPiece: {
+                          index: i,
+                          location: [j, k]
+                        }
+                      }))
+                      setMousePos({
+                        offset: [e.pageX, e.pageY],
+                        pos: [e.pageX, e.pageY]
+                      })
+                      e.preventDefault()
+                    }}
+                  />
+                )}
               </>))
             }
         </div>)}
@@ -66,27 +115,14 @@ export default function App() {
   )
 }
 
-
-const boardSize = 8
-
-interface State {
-  highscore: number
-  board: (ISquare | null)[]
-  userPieces: number[][][]
-  selectedPiece: null | number
-  score: 0
-}
-
-const getInitialState: () => State = () => ({
+const getInitialState: () => IState = () => ({
   // 2D array containing board state
   highscore: 0,
-  board:
-    Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => (null)),
-  // Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({ hue: (i * 60) % 360 })),
+  board: createEmptyBoard(),
   userPieces: getNewPieces(),
   selectedPiece: null,
   score: 0
-})
+} satisfies IState)
 
 /*
 1. Setup
