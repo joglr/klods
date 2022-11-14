@@ -15,5 +15,5 @@ export function checkIfPieceFits(
   pieceLocation: [number, number],
   squareLocation: [number, number]
 ): boolean {
-  return false
+  return true
 }
