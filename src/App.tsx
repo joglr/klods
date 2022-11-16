@@ -39,7 +39,6 @@ export default function App() {
         {/* {Object.entries(state).map(([key, value]) => (
           <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
         ))} */}
-        <div>{state.selectedPiece?.location.join(",")}</div>
         <button onClick={resetGame}>Reset game</button>
       </header>
       <div className="board">
