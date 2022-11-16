@@ -3,7 +3,7 @@ import './App.css'
 import { pieces } from './pieces'
 import type { IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { calculateLocationFromIndex, checkIfPieceFitsAndUpdateBoard, createEmptyBoard, generateFitTest } from './util'
+import { calculateLocationFromIndex, checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest } from './util'
 import { boardSize } from './constants'
 
 export default function App() {
@@ -61,7 +61,7 @@ export default function App() {
 
               const placedPiece = state.userPieces[state.selectedPiece.index]!
               // Attempt to place piece in square
-              const [couldPlace, updatedBoard] = checkIfPieceFitsAndUpdateBoard(
+              let [couldPlace, boardWithPiecePlaced] = checkIfPieceFitsAndUpdateBoard(
                 state.board,
                 placedPiece,
                 state.selectedPiece.location,
@@ -69,6 +69,7 @@ export default function App() {
               )
 
               if (couldPlace) {
+                const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPiecePlaced!)
                 setState(prevState => {
                   const userPieces = prevState.userPieces.map((piece, i) => i === prevState.selectedPiece!.index ? null : piece)
                   return ({
@@ -78,6 +79,7 @@ export default function App() {
                       ? getNewPieces()
                       : userPieces,
                     selectedPiece: null,
+                    score: prevState.score + rowsAndColsCleared * boardSize
                   })
                 })
               } else {
