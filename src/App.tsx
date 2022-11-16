@@ -166,11 +166,12 @@ function clearBoard() {
 }
 
 function getNewPieces() {
-  const first = pieces[Math.floor(Math.random() * pieces.length)]
-  const second = pieces[Math.floor(Math.random() * pieces.length)]
-  const third = pieces[Math.floor(Math.random() * pieces.length)]
+  const newPieces: IPiece[] = []
 
-  return [first, second, third]
+  for (let i = 0; i < 3; i++) {
+    newPieces.push(pieces[Math.floor(Math.random() * pieces.length)])
+  }
+  return newPieces
 }
 
 function attemptPlace(piece: any, location: Location, board: any[]): [any, any] {
