@@ -15,21 +15,6 @@ export function checkIfPieceFits(
   pieceLocation: [number, number],
   squareLocation: [number, number]
 ): boolean {
-
-  /*
-
-  ASCII art of the board:
-    | 0  1  2  3  4  5  6  7
-  0 |
-  1 |
-  2 |
-  3 |
-  4 |
-  5 |                      1
-  6 |                      1
-  7 |                1  1  X
-
-   */
   const pieceWidth = piece[0].length
   const pieceHeight = piece.length
   const pieceMinX = squareLocation[0] - (pieceLocation[1])
@@ -58,29 +43,24 @@ export function checkIfPieceFits(
 
 export function generateFitTest(state: IState, squareLocation: [number, number]): [boolean, string] {
   const shouldSucceed = confirm("Should this be allowed?")
-  const placeholderState = {
-    ...state,
-    board: "{1}"
-  }
-
   const verb = shouldSucceed ? "succeed" : "fail"
   const noun = shouldSucceed ? "succees" : "failure"
 
   const test = `it("${verb}s with placing ?", () => {
-    const ${noun}State{N}: IState = {
-      highscore: ${placeholderState.highscore},
-      board: createEmptyBoard(),
-      userPieces: ${JSON.stringify(placeholderState.userPieces)},
-      selectedPiece: ${JSON.stringify(placeholderState.selectedPiece)},
-      score: ${placeholderState.score},
+    const ${noun}State: IState = {
+      highscore: ${state.highscore},
+      board: ${state.board.every(s => s === null) ? "{1}" : JSON.stringify(state.board)},
+      userPieces: ${JSON.stringify(state.userPieces)},
+      selectedPiece: ${JSON.stringify(state.selectedPiece)},
+      score: ${state.score},
     }
 
-    const ${noun}SquareLocation{N}: [number, number] = ${JSON.stringify(squareLocation)}
+    const ${noun}SquareLocation: [number, number] = ${JSON.stringify(squareLocation)}
     const result = checkIfPieceFits(
-      ${noun}State{N}.board,
-      ${noun}State{N}.userPieces[${noun}State{N}.selectedPiece!.index],
-      ${noun}State{N}.selectedPiece!.location,
-      ${noun}SquareLocation{N}
+      ${noun}State.board,
+      ${noun}State.userPieces[${noun}State.selectedPiece!.index]!,
+      ${noun}State.selectedPiece!.location,
+      ${noun}SquareLocation
     )
     expect(result).toBe(${shouldSucceed.toString()})
   })`
