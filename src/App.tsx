@@ -36,9 +36,9 @@ export default function App() {
         <h1>Klods</h1>
         {/* <div>Score: {state.score}</div>
         <div>High Score: {state.highscore}</div> */}
-        {Object.entries(state).map(([key, value]) => (
+        {/* {Object.entries(state).map(([key, value]) => (
           <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
-        ))}
+        ))} */}
         <div>{state.selectedPiece?.location.join(",")}</div>
         <button onClick={resetGame}>Reset game</button>
       </header>
