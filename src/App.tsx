@@ -122,7 +122,7 @@ const getInitialState: () => IState = () => ({
   userPieces: getNewPieces(),
   selectedPiece: null,
   score: 0
-} satisfies IState)
+})
 
 /*
 1. Setup
