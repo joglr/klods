@@ -1,41 +1,23 @@
-import { IState } from "../model";
-import { checkIfPieceFits, createEmptyBoard } from "../util";
-
-// Placement of wedge piece of in top left corner
-const successState1: IState = {
-  highscore: 0,
-  board: createEmptyBoard(),
-  userPieces: [
-    [
-      [0, 0, 1],
-      [1, 1, 1],
-    ],
-    [
-      [1, 1, 1],
-      [1, 0, 0],
-      [1, 0, 0],
-    ],
-    [
-      [1, 1, 0],
-      [0, 1, 1],
-    ],
-  ],
-  selectedPiece: {
-    index: 1,
-    location: [0, 0],
-  },
-  score: 0,
-};
-const successSquareLocation1: [number, number] = [0, 0]
+import { IState } from "../model"
+import { checkIfPieceFits, createEmptyBoard } from "../util"
 
 describe("checkIfPieceFits", () => {
-  it("succeeds with placement of wedge piece of in top left corner", () => {
+  it("succeeds with placing 3x3 wedge piece in bottom right corner", () => {
+    const succeesState1: IState = {
+      highscore: 0,
+      board: createEmptyBoard(),
+      userPieces: [[[1,1],[0,1]],[[1,1],[1,1],[1,1]],[[0,0,1],[0,0,1],[1,1,1]]],
+      selectedPiece: {"index":2,"location":[2,2]},
+      score: 0,
+    }
+
+    const succeesSquareLocation1: [number, number] = [7,7]
     const result = checkIfPieceFits(
-      successState1.board,
-      successState1.userPieces[successState1.selectedPiece!.index],
-      successState1.selectedPiece!.location,
-      successSquareLocation1
-    );
-    expect(result).toBe(true);
-  });
-});
+      succeesState1.board,
+      succeesState1.userPieces[succeesState1.selectedPiece!.index],
+      succeesState1.selectedPiece!.location,
+      succeesSquareLocation1
+    )
+    expect(result).toBe(true)
+  })
+})
