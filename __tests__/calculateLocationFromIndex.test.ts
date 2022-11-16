@@ -1,5 +1,5 @@
-import { boardSize } from "../constants"
-import { calculateLocationFromIndex } from "../util"
+import { boardSize } from "../src/constants"
+import { calculateLocationFromIndex } from "../src/util"
 
 describe("calculateLocationFromIndex", () => {
   it("calculates the correct location for index 0", () => {

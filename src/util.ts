@@ -9,12 +9,12 @@ export const createRainbowBoard = () =>
 
 export const choose = <T>(values: T[]) => values[Math.floor(Math.random() * values.length)]
 
-export function checkIfPieceFits(
+export function checkIfPieceFitsAndUpdateBoard(
   board: IBoard,
   piece: IPiece,
   pieceLocation: [number, number],
   squareLocation: [number, number]
-): boolean {
+): [true, IBoard] | [false, null] {
   const pieceWidth = piece[0].length
   const pieceHeight = piece.length
   const pieceMinX = squareLocation[0] - (pieceLocation[1])
@@ -23,24 +23,31 @@ export function checkIfPieceFits(
   const pieceMaxY = pieceMinY + pieceHeight - 1
 
   if (pieceMinX < 0 || pieceMinY < 0 || pieceMaxX > boardSize || pieceMaxY > boardSize) {
-    return false
+    return [false, null]
   }
+
+  const updatedBoard = board.slice()
 
   for(let i = 0; i < piece.length; i++) {
     const row = piece[i]
 
     for(let j = 0; j < row.length; j++) {
-      const boardIndex = pieceMinX + pieceMinY * boardSize + i + j;
+      const boardIndex = pieceMinX + pieceMinY * boardSize + i * boardSize + j;
       const boardSquare = board[boardIndex]
       const pieceSquare = row[j]
 
-      if (pieceSquare === 1 && boardSquare !== null) {
-        return false
+      if (pieceSquare === 0) {
+        continue
       }
+
+      if (boardSquare !== null) {
+        return [false, null]
+      }
+      updatedBoard[boardIndex] = { hue: 200 }
     }
   }
 
-  return true
+  return [true, updatedBoard]
 }
 
 export function generateFitTest(state: IState, squareLocation: [number, number]): [boolean, string] {
