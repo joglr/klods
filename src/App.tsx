@@ -34,22 +34,15 @@ export default function App() {
       >
       <header className="header">
         <h1>Klods</h1>
-        {/* <div>Score: {state.score}</div>
-        <div>High Score: {state.highscore}</div> */}
+        <div>Score: {state.score}</div>
+        <div>High Score: {state.highscore}</div>
         {/* {Object.entries(state).map(([key, value]) => (
           <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
         ))} */}
         <div>{state.selectedPiece?.location.join(",")}</div>
         <button onClick={resetGame}>Reset game</button>
       </header>
-      <div
-        className="board"
-        onPointerMove={() => {
-          // console.log("moving over board")
-          // TODO: Check if it can be placed here
-          // TODO: If it can be placed, draw it
-        }}
-      >
+      <div className="board">
         {state.board.map((square, i) =>
           <Square
             key={i}
