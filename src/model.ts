@@ -11,7 +11,7 @@ export interface IState {
   board: IBoard
   userPieces: (IPiece | null)[]
   selectedPiece: IPieceInfo | null
-  score: 0
+  score: number
 }
 
 interface IPieceInfo {

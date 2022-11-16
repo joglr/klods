@@ -50,6 +50,44 @@ export function checkIfPieceFitsAndUpdateBoard(
   return [true, updatedBoard]
 }
 
+export function clearFullRows(board: IBoard): [IBoard, number] {
+  let rowsAndColsCleared = 0
+
+  // Check rows
+  for(let i = 0; i < boardSize; i++) {
+    const rowStartIndex = i * boardSize
+    const rowEndIndex = (i + 1) * boardSize - 1
+    const row = board.slice(rowStartIndex, rowEndIndex)
+    const isFull = row.every(square => square !== null)
+
+    if (isFull) {
+      rowsAndColsCleared++
+      for(let i = rowStartIndex; i <= rowEndIndex; i++) {
+        board[i] = null
+      }
+    }
+  }
+
+  // Check columns
+  for(let i = 0; i < boardSize; i++) {
+    const col = []
+    const indices = []
+    for(let j = 0; j < boardSize; j++) {
+      const squareIndex = j * boardSize + i
+      indices.push(squareIndex)
+      col.push(board[squareIndex])
+    }
+    const isFull = col.every(square => square !== null)
+    if (isFull) {
+      rowsAndColsCleared++
+      for (let x of indices) {
+        board[x] = null
+      }
+    }
+  }
+  return [board, rowsAndColsCleared]
+}
+
 export function generateFitTest(state: IState, squareLocation: [number, number]): [boolean, string] {
   const shouldSucceed = confirm("Should this be allowed?")
   const verb = shouldSucceed ? "succeed" : "fail"
