@@ -9,8 +9,8 @@ export type IPiece = number[][]
 export interface IState {
   highscore: number
   board: IBoard
-  userPieces: IPiece[]
-  selectedPiece: null | IPieceInfo
+  userPieces: (IPiece | null)[]
+  selectedPiece: IPieceInfo | null
   score: 0
 }
 

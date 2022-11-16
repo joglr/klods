@@ -14,7 +14,7 @@ describe("checkIfPieceFits", () => {
     const succeesSquareLocation1: [number, number] = [7,7]
     const result = checkIfPieceFits(
       succeesState1.board,
-      succeesState1.userPieces[succeesState1.selectedPiece!.index],
+      succeesState1.userPieces[succeesState1.selectedPiece!.index]!,
       succeesState1.selectedPiece!.location,
       succeesSquareLocation1
     )
