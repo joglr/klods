@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
-import type { IState } from './model'
+import type { IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFits, createEmptyBoard } from './util'
+import { calculateLocationFromIndex, checkIfPieceFits, createEmptyBoard, generateFitTest } from './util'
 import { boardSize } from './constants'
 
 export default function App() {
@@ -56,17 +56,43 @@ export default function App() {
             square={square}
             onPointerUp={() => {
               if (state.selectedPiece == null) return
-              setState(prevState => ({
-                ...prevState,
-                selectedPiece: null,
+              const squareLocation: [number, number] = calculateLocationFromIndex(i, boardSize)
+              // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
 
-              }))
+              // Attempt to place piece in square
+              const couldPlace = checkIfPieceFits(
+                state.board,
+                state.userPieces[state.selectedPiece.index]!,
+                state.selectedPiece.location,
+                squareLocation
+              )
+
+              if (couldPlace) {
+                // TODO: Place piece
+                setState(prevState => {
+                  const userPieces = prevState.userPieces.map((piece, i) => i === prevState.selectedPiece!.index ? null : piece)
+                  return ({
+                    ...prevState,
+                    userPieces: userPieces.every(p => p == null) ? getNewPieces() : userPieces,
+                    selectedPiece: null,
+                  })
+                })
+              } else {
+                setState(prevState => ({
+                  ...prevState,
+                  selectedPiece: null,
+                }))
+              }
+
+              // if (shouldSucceed !== couldPlace) {
+              //   prompt("red test", newTest)
+              // }
             }}
           />
         )}
       </div>
       <div className="user-pieces">
-        {state.userPieces.map((piece, i) =>
+        {state.userPieces.map((piece, i) => piece === null ? <div /> :
           <div key={i} className="piece"
             style={{
               gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
