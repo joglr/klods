@@ -69,7 +69,6 @@ export default function App() {
               )
 
               if (couldPlace) {
-                // TODO: Place piece
                 setState(prevState => {
                   const userPieces = prevState.userPieces.map((piece, i) => i === prevState.selectedPiece!.index ? null : piece)
                   return ({
