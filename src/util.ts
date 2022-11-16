@@ -17,3 +17,9 @@ export function checkIfPieceFits(
 ): boolean {
   return true
 }
+
+export function calculateLocationFromIndex(index: number, boardSize: number): [number, number] {
+  const x = index % boardSize
+  const y = Math.floor(index / boardSize)
+  return [x, y]
+}
