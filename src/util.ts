@@ -26,19 +26,21 @@ export function checkIfPieceFits(
     return false
   }
 
-  let fits = true
-
   for(let i = 0; i < piece.length; i++) {
     const row = piece[i]
 
     for(let j = 0; j < row.length; j++) {
-      // Check that the square is empty
-      // if piece[i][j] is 1 and square !== null
+      const boardIndex = pieceMinX + pieceMinY * boardSize + i + j;
+      const boardSquare = board[boardIndex]
+      const pieceSquare = row[j]
 
+      if (pieceSquare === 1 && boardSquare !== null) {
+        return false
+      }
     }
   }
 
-  return fits
+  return true
 }
 
 export function generateFitTest(state: IState, squareLocation: [number, number]): [boolean, string] {
