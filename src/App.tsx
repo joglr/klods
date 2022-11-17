@@ -32,7 +32,6 @@ export default function App() {
     <div className="app"
       onPointerMove={e =>
         {
-          console.log("app:pointer move")
           if (state.selectedPiece == null ) return
           // e.preventDefault()
           setMousePos(p => ({ ...p, pos: [e.pageX, e.pageY] }))
@@ -145,7 +144,6 @@ export default function App() {
                       title={`${j},${k}`}
                       onPointerDown={e => {
                         e.preventDefault()
-                        console.log("piece: pointer down")
                         setState(prevState => ({
                           ...prevState,
                           selectedPiece: {
