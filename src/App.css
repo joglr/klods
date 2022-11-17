@@ -24,11 +24,12 @@
   display: grid;
   grid-template-rows: 2fr 1fr;
   touch-action: none;
-  justify-items: center;
+  place-items: center;
 }
 
 .board {
   aspect-ratio: 1;
+  width: min(100vw, 33vh);
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
@@ -53,7 +54,7 @@
 }
 
 .user-pieces {
-  height: 25vh;
+  /* height: 25vh; */
   width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
