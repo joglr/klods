@@ -11,14 +11,20 @@
 .app {
   height: 100vh;
   display: grid;
-  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 3fr;
   justify-items: center;
-  touch-action: none;
 }
 
 .header {
   text-align: center;
   margin: 0;
+}
+
+.game {
+  display: grid;
+  grid-template-rows: 2fr 1fr;
+  touch-action: none;
+  justify-items: center;
 }
 
 .board {
@@ -28,9 +34,10 @@
   grid-template-rows: repeat(8, 1fr);
 
   outline: 2px grey solid;
+  touch-action: none;
 }
 
-.square {
+.board .square {
   outline: 1px grey solid;
 }
 
@@ -57,7 +64,6 @@
 
 .piece {
   display: grid;
-  touch-action: none;
 }
 
 .piece .square {

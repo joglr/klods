@@ -7,3 +7,5 @@ export const hues = [
   180,
   300
 ]
+
+export const highscoreLocalStorageKey = "KLODS_HIGHSCORE"
