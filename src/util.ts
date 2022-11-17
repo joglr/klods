@@ -19,7 +19,7 @@ export function checkIfPieceFitsAndUpdateBoard(
   const pieceHeight = piece.length
   const pieceMinX = squareLocation[0] - (pieceLocation[1])
   const pieceMinY = squareLocation[1] - (pieceLocation[0])
-  const pieceMaxX = pieceMinX + pieceWidth - 1
+  const pieceMaxX = pieceMinX + pieceWidth
   const pieceMaxY = pieceMinY + pieceHeight - 1
 
   if (pieceMinX < 0 || pieceMinY < 0 || pieceMaxX > boardSize || pieceMaxY > boardSize) {
@@ -56,7 +56,7 @@ export function clearFullRows(board: IBoard): [IBoard, number] {
   // Check rows
   for(let i = 0; i < boardSize; i++) {
     const rowStartIndex = i * boardSize
-    const rowEndIndex = (i + 1) * boardSize - 1
+    const rowEndIndex = (i + 1) * boardSize
     const row = board.slice(rowStartIndex, rowEndIndex)
     const isFull = row.every(square => square !== null)
 
