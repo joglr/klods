@@ -3,7 +3,7 @@ import './App.css'
 import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth } from './util'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, mapRelativePositionToIndices } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
 
@@ -34,10 +34,7 @@ export default function App() {
     if (!selectedPiece) return [false, state.board]
     const { colIndex, rowIndex } = snapPositionToBoard(boardRef, ...mousePosWithOffset)
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
-      state.board,
-      selectedPiece,
-      [colIndex, rowIndex]
-    )
+      { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
     return [fit, fit ? board : state.board]
   }, [mousePosWithOffset, state])
 
@@ -65,17 +62,17 @@ export default function App() {
     const [selectedPiece, selectedPieceIndex] = tryGetPieceFromState(state)
     if (!selectedPiece) return
 
-    const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPreview)
+    const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPreview, boardSize)
     setState(prevState => {
       const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
       return ({
-        ...prevState,
         board: updatedBoard,
         userPieces: userPieces.every(p => p == null)
           ? getNewPieces()
           : userPieces,
-        selectedPiece: null,
-        score: prevState.score + rowsAndColsCleared * boardSize
+        selectedPieceIndex: null,
+        score: prevState.score + rowsAndColsCleared * boardSize,
+        highscore: prevState.highscore
       })
     })
 
@@ -164,18 +161,16 @@ export default function App() {
                     },
                   }}
                 >
-                  {piece.map((rows, j) =>
-                    rows.map((fill, k) =>
-                      <Square
-                        key={`${j},${k}`}
-                        square={
-                          fill === 1
-                            ? { hue: 100 }
-                            : null
-                        }
-                      />
-                    ))
-                  }
+                  {piece.map((rows, j) => (
+                    <>
+                      {rows.map((fill, k) => (
+                        <Square
+                          key={`${j},${k}`}
+                          square={fill === 1 ? { hue: 100 } : null}
+                        />
+                      ))}
+                    </>
+                  ))}
               </div>
             </div>)}
           </div>
@@ -187,7 +182,7 @@ export default function App() {
 
 function tryGetPieceFromState(state: IState): [IPiece, number] | [null, null] {
   const selectedPieceIndex = state.selectedPieceIndex
-  if(!selectedPieceIndex) return [null, null]
+  if(selectedPieceIndex === null) return [null, null]
   const selectedPiece = state.userPieces[selectedPieceIndex]
   if(!selectedPiece) return [null, null]
   return [selectedPiece, selectedPieceIndex]
@@ -203,7 +198,7 @@ const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, n
 
 const getInitialState: () => IState = () => ({
   highscore: Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
-  board: createEmptyBoard(),
+  board: createEmptyBoard(boardSize),
   userPieces: getNewPieces(),
   selectedPieceIndex: null,
   score: 0
@@ -218,12 +213,16 @@ function snapPositionToBoard(boardRef: RefObject<HTMLDivElement>, pageX: number,
   const pointerXRelative = pageX - x
   const pointerYRelative = pageY - y
 
-  const colIndex = Math.floor(pointerXRelative / width * boardSize)
-  const rowIndex = Math.floor(pointerYRelative / height * boardSize)
+  const { colIndex, rowIndex } = mapRelativePositionToIndices({ width, height, pointerXRelative, pointerYRelative, boardSize })
   return { colIndex, rowIndex }
 }
 
 function getNewPieces() {
+  // return [
+  //   pieces[12],
+  //   pieces[12],
+  //   pieces[12],
+  // ]
   const newPieces: IPiece[] = []
 
   for (let i = 0; i < 3; i++) {

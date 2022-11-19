@@ -1,10 +1,9 @@
-import { boardSize } from "./constants"
 import type { IBoard, IPiece, IState } from "./model"
 
-export const createEmptyBoard = () =>
+export const createEmptyBoard = (boardSize: number) =>
   Array.from({ length: Math.pow(boardSize, 2) }).map(() => (null))
 
-export const createRainbowBoard = () =>
+export const createRainbowBoard = (boardSize: number) =>
   Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({ hue: (i * 60) % 360 }))
 
 export const choose = <T>(values: T[]) => values[Math.floor(Math.random() * values.length)]
@@ -17,10 +16,7 @@ export const getPieceWidth = (p: IPiece) => p[0].length
 export const getPieceHeight = (p: IPiece) => p.length
 
 export function checkIfPieceFitsAndUpdateBoard(
-  board: IBoard,
-  piece: IPiece,
-  squareLocation: [number, number]
-): [true, IBoard] | [false, null] {
+{ board, piece, squareLocation, boardSize }: { board: IBoard; piece: IPiece; squareLocation: [number, number]; boardSize: number }): [true, IBoard] | [false, null] {
   const { width, height } = getPieceSize(piece)
   const pieceLocation = [0, 0]
   const pieceMinX = squareLocation[0] - (pieceLocation[1])
@@ -56,7 +52,7 @@ export function checkIfPieceFitsAndUpdateBoard(
   return [true, updatedBoard]
 }
 
-export function clearFullRows(board: IBoard): [IBoard, number] {
+export function clearFullRows(board: IBoard, boardSize: number): [IBoard, number] {
   let rowsAndColsCleared = 0
 
   // Check rows
@@ -125,4 +121,12 @@ export function calculateLocationFromIndex(index: number, boardSize: number): [n
   const x = index % boardSize
   const y = Math.floor(index / boardSize)
   return [x, y]
+}
+
+export function mapRelativePositionToIndices(
+{ width, height, boardSize, pointerXRelative, pointerYRelative }: { width: number; height: number; boardSize: number; pointerXRelative: number; pointerYRelative: number },
+) {
+  const colIndex = Math.floor(pointerXRelative / width * boardSize)
+  const rowIndex = Math.floor(pointerYRelative / height * boardSize)
+  return { colIndex, rowIndex }
 }
