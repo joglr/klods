@@ -26,12 +26,13 @@ a:hover {
 
 body {
   margin: 0;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  margin-block: 8px;
 }
 
 button {

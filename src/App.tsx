@@ -1,35 +1,45 @@
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
-import type { IPiece, IState } from './model'
+import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest } from './util'
-import { boardSize, highscoreLocalStorageKey } from './constants'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth } from './util'
+import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
+import { usePointerExit } from './hooks'
 
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
   const boardRef = useRef<HTMLDivElement>(null)
-  const [mousePos, setMousePos] = useState<{
+  const [pointer, setPointer] = useState<{
     offset: [number, number],
-    pos: [number, number]
+    pos: [number, number],
+    type: string
   }>({
     offset: [0, 0],
-    pos: [0, 0]
+    pos: [0, 0],
+    type: "touch"
   })
+  const mousePosWithOffset = useMemo<[number, number]>(() => {
+    const [selectedPiece] = tryGetPieceFromState(state)
+    const offsets = selectedPiece ? getOffsetFromPieceInPixels(selectedPiece, pointer.type) : [0, 0]
 
-  const boardWithPreview = useMemo(() => {
-    if (!state.selectedPiece) return state.board
-    const selectedPiece = state.userPieces[state.selectedPiece.index]
-    if (!selectedPiece) return state.board
-    const { colIndex, rowIndex } = snapPositionToBoard(boardRef, ...mousePos.pos)
+    return ([
+      pointer.pos[0] - offsets[0],
+      pointer.pos[1] - offsets[1]
+    ])
+  }, [pointer.pos, pointer.type, state])
+
+  const [fit, boardWithPreview] = useMemo<[boolean, IBoard]>(() => {
+    const [selectedPiece] = tryGetPieceFromState(state)
+    if (!selectedPiece) return [false, state.board]
+    const { colIndex, rowIndex } = snapPositionToBoard(boardRef, ...mousePosWithOffset)
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
       state.board,
       selectedPiece,
-      state.selectedPiece.location,
       [colIndex, rowIndex]
     )
-    return fit ? board : state.board
-  }, [mousePos.pos, state.board, state.selectedPiece, state.userPieces])
+    return [fit, fit ? board : state.board]
+  }, [mousePosWithOffset, state])
 
   useEffect(() => {
     const highscore = Math.max(state.highscore, state.score).toString()
@@ -41,153 +51,161 @@ export default function App() {
     highscore: Math.max(prevState.highscore, prevState.score)
   }))
 
-  function requestFullscreen() {
-    document.documentElement.requestFullscreen()
-  }
+  const pointerUpHandler = useCallback(function pointerUpHandler() {
+    if (!boardRef.current) return
+
+    if (!fit) {
+      setState(p => ({...p, selectedPiece: null}))
+      return
+    }
+
+    // const squareLocation: [number, number] = [0, 0]
+    // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
+
+    const [selectedPiece, selectedPieceIndex] = tryGetPieceFromState(state)
+    if (!selectedPiece) return
+
+    const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPreview)
+    setState(prevState => {
+      const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
+      return ({
+        ...prevState,
+        board: updatedBoard,
+        userPieces: userPieces.every(p => p == null)
+          ? getNewPieces()
+          : userPieces,
+        selectedPiece: null,
+        score: prevState.score + rowsAndColsCleared * boardSize
+      })
+    })
+
+    // if (shouldSucceed !== fit) {
+    //   prompt("red test", newTest)
+    // }
+  }, [boardWithPreview, fit, state])
+
+  usePointerExit(pointerUpHandler)
 
   return (
     <div className="app"
       onPointerMove={e =>
         {
-          if (state.selectedPiece == null ) return
-          setMousePos(p => ({ ...p, pos: [e.pageX, e.pageY] }))
-          return
-          //   // TODO: Show snapped preview
-        }
-      }
-      onPointerUp={(e) => {
-        if (!boardRef.current) return
-
-        const { colIndex, rowIndex } = snapPositionToBoard(boardRef, e.pageX, e.pageY)
-
-        if (colIndex < 0 || rowIndex < 0 || colIndex >= boardSize || rowIndex >= boardSize) {
-          setState(p => ({...p, selectedPiece: null}))
-          return
-        }
-
-        const squareLocation: [number, number] = [colIndex, rowIndex]
-
-        const selectedPieceIndex = state.selectedPiece?.index
-        if(selectedPieceIndex === undefined) return
-        const selectedPiece = state.userPieces[selectedPieceIndex]
-        if(!state.selectedPiece || !selectedPiece) return
-
-        // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
-
-        const placedPiece = selectedPiece
-        // Attempt to place piece in square
-        const [couldPlace, boardWithPiecePlaced] = checkIfPieceFitsAndUpdateBoard(
-          state.board,
-          placedPiece,
-          state.selectedPiece.location,
-          squareLocation
-        )
-
-        if (couldPlace) {
-          const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPiecePlaced)
-          setState(prevState => {
-            const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
-            return ({
-              ...prevState,
-              board: updatedBoard,
-              userPieces: userPieces.every(p => p == null)
-                ? getNewPieces()
-                : userPieces,
-              selectedPiece: null,
-              score: prevState.score + rowsAndColsCleared * boardSize
-            })
-          })
-        } else {
-          setState(prevState => ({
-            ...prevState,
-            selectedPiece: null,
+          if (state.selectedPieceIndex == null ) return
+          setPointer(p => ({
+            ...p,
+            pos: [
+              e.pageX,
+              e.pageY
+            ]
           }))
         }
-
-        // if (shouldSucceed !== couldPlace) {
-        //   prompt("red test", newTest)
-        // }
-      }}
+      }
+      onPointerUp={pointerUpHandler}
       >
-      <header className="header">
-        <h1>Klods</h1>
-        <div>Score: {state.score}</div>
-        <div>High Score: {state.highscore}</div>
-        {/* {Object.entries(state).map(([key, value]) => (
-          <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
-        ))} */}
-        {/* {boardWithPreview.join(", ")} */}
-        <button onClick={resetGame}>Reset game</button>
-        <button onClick={requestFullscreen}>Fullscreen</button>
-      </header>
-      <section className="game">
-        <div
-          className="board"
-          ref={boardRef}
-        >
-          {boardWithPreview.map((square, i) =>
-            <Square key={i} square={square} />
-          )}
-        </div>
-        <div className="user-pieces">
-          {state.userPieces.map((piece, i) => piece === null ? <div /> :
-            <div key={i} className="piece"
-              style={{
-                gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
-                gridTemplateRows: `repeat(${piece.length}, 1fr)`,
-                ...state.selectedPiece?.index === i ? {
-                  transform: `translate(${mousePos.pos[0] - mousePos.offset[0]}px,${mousePos.pos[1] - mousePos.offset[1]}px) scale(0.75)`,
-                  pointerEvents: "none",
-                  touchAction: "none",
-                  opacity: 0.5
-                } : {}
-              }}
+      <div className="app-wrapper">
+        <header className="header">
+          <h1>Klods</h1>
+          <div className="options">
+            <div>Score: {state.score}</div>
+            <div>High Score: {state.highscore}</div>
+            <button onClick={resetGame}>Reset game</button>
+            <button onClick={() => document.documentElement.requestFullscreen()}>Fullscreen</button>
+          </div>
+        </header>
+        <main className="game">
+          <div className="board-wrapper">
+            <div
+              className="board"
+              ref={boardRef}
             >
-              {piece.map((rows, j) => (
-                <>
-                  {rows.map((fill, k) =>
-                    <Square
-                      key={k}
-                      square={
-                        fill === 1 ?
-                          state.selectedPiece?.location.join(",") === `${j},${k}` &&
-                          state.selectedPiece.index === i
-                            ? { hue: 200 }
-                            : { hue: 100 }
-                          : null
-                      }
-                      title={`${j},${k}`}
-                      onPointerDown={e => {
-                        e.preventDefault()
-                        setState(prevState => ({
-                          ...prevState,
-                          selectedPiece: {
-                            index: i,
-                            location: [j, k]
-                          }
-                        }))
-                        setMousePos({
-                          offset: [e.pageX, e.pageY],
-                          pos: [e.pageX, e.pageY]
-                        })
-                        e.preventDefault()
-                      }}
-                    />
-                  )}
-                </>))
-              }
-          </div>)}
-        </div>
-      </section>
+              {boardWithPreview.map((square, i) =>
+                <Square key={i} square={square} />
+              )}
+            </div>
+          </div>
+          <div className="user-pieces">
+            {state.userPieces.map((piece, i) => piece === null ? <div /> :
+              <div className="piece" key={i}
+                onPointerDown={e => {
+                  // Prevent drag behaviour
+                  e.preventDefault()
+
+                  // Select the piece that was dragged from
+                  setState(prevState => ({
+                    ...prevState,
+                    selectedPieceIndex: i
+                  }))
+                  setPointer({
+                    offset: [e.pageX, e.pageY],
+                    pos: [e.pageX, e.pageY],
+                    type: e.pointerType
+                  })
+                }}
+              >
+                <div className="piece-grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
+                    gridTemplateRows: `repeat(${piece.length}, 1fr)`,
+                    ...state.selectedPieceIndex === i ? {
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      "--xt": `calc(${pointer.pos[0]}px - ${getOffsetFromPiece(piece, pointer.type)[0]} * var(--square-size))`,
+                      "--yt": `calc(${pointer.pos[1]}px - ${getOffsetFromPiece(piece, pointer.type)[1]} * var(--square-size))`,
+                      transform: `
+                        translate(var(--xt), var(--yt))
+                        scale(1)`,
+                      pointerEvents: "none",
+                      touchAction: "none",
+                      opacity: fit ? 0.5 : 1
+                      // opacity: 0.5
+                    } : {
+                      "--square-size--units": "var(--square-shrink-size-units)"
+                    },
+                  }}
+                >
+                  {piece.map((rows, j) =>
+                    rows.map((fill, k) =>
+                      <Square
+                        key={`${j},${k}`}
+                        square={
+                          fill === 1
+                            ? { hue: 100 }
+                            : null
+                        }
+                      />
+                    ))
+                  }
+              </div>
+            </div>)}
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
+
+function tryGetPieceFromState(state: IState): [IPiece, number] | [null, null] {
+  const selectedPieceIndex = state.selectedPieceIndex
+  if(!selectedPieceIndex) return [null, null]
+  const selectedPiece = state.userPieces[selectedPieceIndex]
+  if(!selectedPiece) return [null, null]
+  return [selectedPiece, selectedPieceIndex]
+}
+
+const getOffsetFromPiece: (p: IPiece, pointerType: string) => [number, number] = (p, pt) => ([
+  getPieceWidth(p) / 2,
+  getPieceHeight(p) + (pt === "mouse" ? 0 : 2)
+])
+
+const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, number] = (p, pt) =>
+  getOffsetFromPiece(p, pt).map(v => v * getSquareSizePixels()) as [number, number]
 
 const getInitialState: () => IState = () => ({
   highscore: Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
   board: createEmptyBoard(),
   userPieces: getNewPieces(),
-  selectedPiece: null,
+  selectedPieceIndex: null,
   score: 0
 })
 

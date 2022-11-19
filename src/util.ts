@@ -2,25 +2,31 @@ import { boardSize } from "./constants"
 import type { IBoard, IPiece, IState } from "./model"
 
 export const createEmptyBoard = () =>
-  Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => (null))
+  Array.from({ length: Math.pow(boardSize, 2) }).map(() => (null))
 
 export const createRainbowBoard = () =>
   Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({ hue: (i * 60) % 360 }))
 
 export const choose = <T>(values: T[]) => values[Math.floor(Math.random() * values.length)]
 
+export const getPieceSize = (p: IPiece) => ({
+  width: getPieceWidth(p),
+  height: getPieceHeight(p)
+})
+export const getPieceWidth = (p: IPiece) => p[0].length
+export const getPieceHeight = (p: IPiece) => p.length
+
 export function checkIfPieceFitsAndUpdateBoard(
   board: IBoard,
   piece: IPiece,
-  pieceLocation: [number, number],
   squareLocation: [number, number]
 ): [true, IBoard] | [false, null] {
-  const pieceWidth = piece[0].length
-  const pieceHeight = piece.length
+  const { width, height } = getPieceSize(piece)
+  const pieceLocation = [0, 0]
   const pieceMinX = squareLocation[0] - (pieceLocation[1])
   const pieceMinY = squareLocation[1] - (pieceLocation[0])
-  const pieceMaxX = pieceMinX + pieceWidth
-  const pieceMaxY = pieceMinY + pieceHeight - 1
+  const pieceMaxX = pieceMinX + width
+  const pieceMaxY = pieceMinY + height - 1
 
   if (pieceMinX < 0 || pieceMinY < 0 || pieceMaxX > boardSize || pieceMaxY > boardSize) {
     return [false, null]
@@ -80,7 +86,7 @@ export function clearFullRows(board: IBoard): [IBoard, number] {
     const isFull = col.every(square => square !== null)
     if (isFull) {
       rowsAndColsCleared++
-      for (let x of indices) {
+      for (const x of indices) {
         board[x] = null
       }
     }
@@ -98,7 +104,7 @@ export function generateFitTest(state: IState, squareLocation: [number, number])
       highscore: ${state.highscore},
       board: ${state.board.every(s => s === null) ? "{1}" : JSON.stringify(state.board)},
       userPieces: ${JSON.stringify(state.userPieces)},
-      selectedPiece: ${JSON.stringify(state.selectedPiece)},
+      selectedPieceIndex: ${JSON.stringify(state.selectedPieceIndex)},
       score: ${state.score},
     }
 

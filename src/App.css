@@ -8,10 +8,27 @@
   }
 }
 
+:root {
+  --square-shrink-size-units: 2.5;
+  --square-size-units: 3.5;
+  --square-size: calc(var(--square-size-units) * 1vh);
+  --board-size: 8;
+}
+
 .app {
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-wrapper {
+  height: 100vh;
+  width: 100vw;
+  max-width: 600px;
+  margin: auto;
   display: grid;
-  grid-template-rows: 1fr 3fr;
+  grid-template-rows: auto 1fr;
+  gap: 16px 0;
   justify-items: center;
 }
 
@@ -20,16 +37,35 @@
   margin: 0;
 }
 
-.game {
+.options {
   display: grid;
-  grid-template-rows: 2fr 1fr;
+  place-items: center;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+}
+
+.game {
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
   touch-action: none;
   place-items: center;
+  align-items: stretch;
+  gap: 2vh 0;
+}
+
+.board-wrapper {
+  display: grid;
+  place-items: center;
+  width: 100%;
 }
 
 .board {
   aspect-ratio: 1;
-  width: min(100vw, 33vh);
+  height: 100%;
+  width: auto;
+  height: calc(8 * var(--square-size));
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
@@ -54,21 +90,30 @@
 }
 
 .user-pieces {
-  /* height: 25vh; */
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2vh;
+  grid-template-columns: repeat(3, auto);
+  gap: 2vh 1vh;
   flex-direction: row;
   place-items: center;
 }
 
 .piece {
-  display: grid;
+  height: 100%;
+  width: 100%;
+  outline: 1px red solid;
 }
 
-.piece .square {
-  height: 4vh;
-  width: 4vh;
-  border-width: 0.75vh;
+.piece-grid {
+  width: min-content;
+  margin: auto;
+  display: grid;
+  place-items: center;
+  place-content: center;
+}
+
+.piece-grid .square {
+  height: var(--square-size);
+  width: var(--square-size);
+  border-width: calc(var(--square-size) / 5)
 }

@@ -10,11 +10,6 @@ export interface IState {
   highscore: number
   board: IBoard
   userPieces: (IPiece | null)[]
-  selectedPiece: IPieceInfo | null
+  selectedPieceIndex: number | null
   score: number
-}
-
-interface IPieceInfo {
-  index: number
-  location: [number, number]
 }
