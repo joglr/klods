@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
 import type { IPiece, IState } from './model'
@@ -9,10 +9,27 @@ import { boardSize, highscoreLocalStorageKey } from './constants'
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
   const boardRef = useRef<HTMLDivElement>(null)
-  const [mousePos, setMousePos] = useState({
+  const [mousePos, setMousePos] = useState<{
+    offset: [number, number],
+    pos: [number, number]
+  }>({
     offset: [0, 0],
     pos: [0, 0]
   })
+
+  const boardWithPreview = useMemo(() => {
+    if (!state.selectedPiece) return state.board
+    const selectedPiece = state.userPieces[state.selectedPiece.index]
+    if (!selectedPiece) return state.board
+    const { colIndex, rowIndex } = snapPositionToBoard(boardRef, ...mousePos.pos)
+    const [fit, board] = checkIfPieceFitsAndUpdateBoard(
+      state.board,
+      selectedPiece,
+      state.selectedPiece.location,
+      [colIndex, rowIndex]
+    )
+    return fit ? board : state.board
+  }, [mousePos.pos, state.board, state.selectedPiece, state.userPieces])
 
   useEffect(() => {
     const highscore = Math.max(state.highscore, state.score).toString()
@@ -33,7 +50,6 @@ export default function App() {
       onPointerMove={e =>
         {
           if (state.selectedPiece == null ) return
-          // e.preventDefault()
           setMousePos(p => ({ ...p, pos: [e.pageX, e.pageY] }))
           return
           //   // TODO: Show snapped preview
@@ -42,13 +58,7 @@ export default function App() {
       onPointerUp={(e) => {
         if (!boardRef.current) return
 
-        const { width, height, x, y } = boardRef.current.getBoundingClientRect()
-
-        const pointerXRelative = e.pageX - x
-        const pointerYRelative = e.pageY - y
-
-        const colIndex = Math.floor(pointerXRelative / width * boardSize)
-        const rowIndex = Math.floor(pointerYRelative / height * boardSize)
+        const { colIndex, rowIndex } = snapPositionToBoard(boardRef, e.pageX, e.pageY)
 
         if (colIndex < 0 || rowIndex < 0 || colIndex >= boardSize || rowIndex >= boardSize) {
           setState(p => ({...p, selectedPiece: null}))
@@ -57,13 +67,16 @@ export default function App() {
 
         const squareLocation: [number, number] = [colIndex, rowIndex]
 
-        if(state.selectedPiece == null) return
+        const selectedPieceIndex = state.selectedPiece?.index
+        if(selectedPieceIndex === undefined) return
+        const selectedPiece = state.userPieces[selectedPieceIndex]
+        if(!state.selectedPiece || !selectedPiece) return
 
         // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
 
-        const placedPiece = state.userPieces[state.selectedPiece.index]!
+        const placedPiece = selectedPiece
         // Attempt to place piece in square
-        let [couldPlace, boardWithPiecePlaced] = checkIfPieceFitsAndUpdateBoard(
+        const [couldPlace, boardWithPiecePlaced] = checkIfPieceFitsAndUpdateBoard(
           state.board,
           placedPiece,
           state.selectedPiece.location,
@@ -71,9 +84,9 @@ export default function App() {
         )
 
         if (couldPlace) {
-          const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPiecePlaced!)
+          const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPiecePlaced)
           setState(prevState => {
-            const userPieces = prevState.userPieces.map((piece, i) => i === prevState.selectedPiece!.index ? null : piece)
+            const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
             return ({
               ...prevState,
               board: updatedBoard,
@@ -103,6 +116,7 @@ export default function App() {
         {/* {Object.entries(state).map(([key, value]) => (
           <div key={key}>{key}: {JSON.stringify(value, null, 2) }</div>
         ))} */}
+        {/* {boardWithPreview.join(", ")} */}
         <button onClick={resetGame}>Reset game</button>
         <button onClick={requestFullscreen}>Fullscreen</button>
       </header>
@@ -111,7 +125,7 @@ export default function App() {
           className="board"
           ref={boardRef}
         >
-          {state.board.map((square, i) =>
+          {boardWithPreview.map((square, i) =>
             <Square key={i} square={square} />
           )}
         </div>
@@ -122,9 +136,10 @@ export default function App() {
                 gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
                 gridTemplateRows: `repeat(${piece.length}, 1fr)`,
                 ...state.selectedPiece?.index === i ? {
-                  transform: `translate(${mousePos.pos[0] - mousePos.offset[0]}px,${mousePos.pos[1] - mousePos.offset[1]}px)`,
+                  transform: `translate(${mousePos.pos[0] - mousePos.offset[0]}px,${mousePos.pos[1] - mousePos.offset[1]}px) scale(0.75)`,
                   pointerEvents: "none",
-                  touchAction: "none"
+                  touchAction: "none",
+                  opacity: 0.5
                 } : {}
               }}
             >
@@ -175,6 +190,20 @@ const getInitialState: () => IState = () => ({
   selectedPiece: null,
   score: 0
 })
+
+function snapPositionToBoard(boardRef: RefObject<HTMLDivElement>, pageX: number, pageY: number) {
+  if (!boardRef.current) {
+    throw Error("Cannot snap position when board does not exist")
+  }
+  const { width, height, x, y } = boardRef.current.getBoundingClientRect()
+
+  const pointerXRelative = pageX - x
+  const pointerYRelative = pageY - y
+
+  const colIndex = Math.floor(pointerXRelative / width * boardSize)
+  const rowIndex = Math.floor(pointerYRelative / height * boardSize)
+  return { colIndex, rowIndex }
+}
 
 function getNewPieces() {
   const newPieces: IPiece[] = []
