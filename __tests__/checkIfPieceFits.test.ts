@@ -16,19 +16,15 @@ describe("checkIfPieceFits", () => {
     */
     const succeesState1: IState = {
       highscore: 0,
-      board: createEmptyBoard(),
+      board: createEmptyBoard(8),
       userPieces: [[[1,1],[0,1]],[[1,1],[1,1],[1,1]],[[0,0,1],[0,0,1],[1,1,1]]],
-      selectedPiece: {"index":2,"location":[2,2]},
+      selectedPieceIndex: 2,
       score: 0,
     }
 
-    const succeesSquareLocation1: [number, number] = [7,7]
+    const succeesSquareLocation1: [number, number] = [5,5]
     const result = checkIfPieceFitsAndUpdateBoard(
-      succeesState1.board,
-      succeesState1.userPieces[succeesState1.selectedPiece!.index]!,
-      succeesState1.selectedPiece!.location,
-      succeesSquareLocation1
-    )
+      { board: succeesState1.board, piece: succeesState1.userPieces[succeesState1.selectedPieceIndex!]!, squareLocation: succeesSquareLocation1, boardSize: 8 }    )
     expect(result[0]).toBe(true)
   })
 
@@ -48,17 +44,13 @@ describe("checkIfPieceFits", () => {
       highscore: 0,
       board: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"hue":200},{"hue":200},null,null,null,null,null,null,{"hue":200},{"hue":200}],
       userPieces: [[[1,1],[1,0]],[[1,1,1,1],[1,0,0,0]],[[1,1],[0,1],[0,1],[0,1]]],
-      selectedPiece: {"index":0,"location":[0,0]},
+      selectedPieceIndex: 0,
       score: 0,
     }
 
     const failureSquareLocation: [number, number] = [6,6]
     const result = checkIfPieceFitsAndUpdateBoard(
-      failureState.board,
-      failureState.userPieces[failureState.selectedPiece!.index]!,
-      failureState.selectedPiece!.location,
-      failureSquareLocation
-    )
+      { board: failureState.board, piece: failureState.userPieces[failureState.selectedPieceIndex!]!, squareLocation: failureSquareLocation, boardSize: 8 }    )
     expect(result[0]).toBe(false)
   })
 })
