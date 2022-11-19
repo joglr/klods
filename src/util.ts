@@ -126,7 +126,11 @@ export function calculateLocationFromIndex(index: number, boardSize: number): [n
 export function mapRelativePositionToIndices(
 { width, height, boardSize, pointerXRelative, pointerYRelative }: { width: number; height: number; boardSize: number; pointerXRelative: number; pointerYRelative: number },
 ) {
-  const colIndex = Math.floor(pointerXRelative / width * boardSize)
-  const rowIndex = Math.floor(pointerYRelative / height * boardSize)
+  const colIndex = Math.round(pointerXRelative / width * boardSize)
+  const rowIndex = Math.round(pointerYRelative / height * boardSize)
   return { colIndex, rowIndex }
 }
+
+const clamp =
+  (min: number, max: number) =>
+  (x: number) => Math.min(Math.max(x, min), max)

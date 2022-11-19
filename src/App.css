@@ -101,7 +101,6 @@
 .piece {
   height: 100%;
   width: 100%;
-  outline: 1px red solid;
 }
 
 .piece-grid {
