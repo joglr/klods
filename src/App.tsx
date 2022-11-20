@@ -6,6 +6,7 @@ import { Square } from './components/Square'
 import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, mapRelativePositionToIndices } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
+import { FullscreenButton } from './components/FullscreenButton'
 
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
@@ -106,7 +107,7 @@ export default function App() {
             <div>Score: {state.score}</div>
             <div>High Score: {state.highscore}</div>
             <button onClick={resetGame}>Reset game</button>
-            <button onClick={() => document.documentElement.requestFullscreen()}>Fullscreen</button>
+            <FullscreenButton/>
           </div>
         </header>
         <main className="game">
