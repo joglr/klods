@@ -3,7 +3,7 @@ import './App.css'
 import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, mapRelativePositionToIndices, snapPositionToBoard } from './util'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
 import { FullscreenButton } from './components/FullscreenButton'
@@ -208,16 +208,4 @@ const getInitialState: () => IState = () => ({
   score: 0
 })
 
-function getNewPieces() {
-  // return [
-  //   pieces[12],
-  //   pieces[12],
-  //   pieces[12],
-  // ]
-  const newPieces: IPiece[] = []
-
-  for (let i = 0; i < 3; i++) {
-    newPieces.push(pieces[Math.floor(Math.random() * pieces.length)])
-  }
-  return newPieces
-}
+const getNewPieces = () => drawN(pieces, 3)

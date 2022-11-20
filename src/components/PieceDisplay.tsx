@@ -1,13 +1,13 @@
 import { hues } from "../constants";
 import { pieces } from "../pieces";
-import { choose } from "../util";
+import { pickOne } from "../util";
 import { Square } from "./Square";
 
 export function PieceDisplay() {
   return (
     <div className="user-pieces">
       {pieces.map((piece, i) => {
-        const hue = choose(hues);
+        const hue = pickOne(hues);
         return (
           <div
             key={i}

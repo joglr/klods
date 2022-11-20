@@ -8,8 +8,11 @@ export const createRainbowBoard = (boardSize: number) =>
     hue: (i * 60) % 360,
   }))
 
-export const choose = <T>(values: T[]) =>
+export const pickOne = <T>(values: T[]) =>
   values[Math.floor(Math.random() * values.length)]
+
+export const drawN = <T>(values: T[], amount = 1) =>
+  values.slice().sort(() => Math.random() - 0.5).slice(0, amount)
 
 export const getPieceSize = (p: IPiece) => ({
   width: getPieceWidth(p),
