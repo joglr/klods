@@ -78,7 +78,7 @@ export function clearFullRows(
   // Check rows
   for (let i = 0; i < boardSize; i++) {
     const rowStartIndex = i * boardSize
-    const rowEndIndex = (i + 1) * boardSize
+    const rowEndIndex = rowStartIndex + boardSize - 1
     const row = board.slice(rowStartIndex, rowEndIndex)
     const isFull = row.every((square) => square !== null)
 
