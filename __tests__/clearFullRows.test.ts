@@ -52,4 +52,36 @@ describe("clearFullRows", () => {
     expect(newBoard).toEqual(board)
   })
 
+  it("does not clear almost full rows", () => {
+    const board: IBoard = [
+      s, s, s, s, s, s, s, _,
+      s, s, s, s, s, s, _, s,
+      s, s, s, s, s, _, s, s,
+      s, s, s, s, _, s, s, s,
+      s, s, s, _, s, s, s, s,
+      s, s, _, s, s, s, s, s,
+      s, _, s, s, s, s, s, s,
+      _, s, s, s, s, s, s, s,
+    ]
+    const [newBoard, amountCleared] = clearFullRows(board, 8)
+    expect(amountCleared).toBe(0)
+    expect(newBoard).toEqual(board)
+  })
+
+  it("does not clear almost full rows", () => {
+    const board: IBoard = [
+      _, s, s, s, s, s, s, s,
+      s, _, s, s, s, s, s, s,
+      s, s, _, s, s, s, s, s,
+      s, s, s, _, s, s, s, s,
+      s, s, s, s, _, s, s, s,
+      s, s, s, s, s, _, s, s,
+      s, s, s, s, s, s, _, s,
+      s, s, s, s, s, s, s, _,
+    ]
+    const [newBoard, amountCleared] = clearFullRows(board, 8)
+    expect(amountCleared).toBe(0)
+    expect(newBoard).toEqual(board)
+  })
+
 })
