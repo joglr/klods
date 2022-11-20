@@ -1,9 +1,9 @@
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, mapRelativePositionToIndices } from './util'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, mapRelativePositionToIndices, snapPositionToBoard } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
 import { FullscreenButton } from './components/FullscreenButton'
@@ -33,7 +33,11 @@ export default function App() {
   const [fit, boardWithPreview] = useMemo<[boolean, IBoard]>(() => {
     const [selectedPiece] = tryGetPieceFromState(state)
     if (!selectedPiece) return [false, state.board]
-    const { colIndex, rowIndex } = snapPositionToBoard(boardRef, ...mousePosWithOffset)
+    if (!boardRef.current) {
+      throw Error("Cannot snap position when board does not exist")
+    }
+    const { width, height, x, y } = boardRef.current.getBoundingClientRect()
+    const { colIndex, rowIndex } = snapPositionToBoard({ boardSize, width, height, x, y, pageX: mousePosWithOffset[0], pageY: mousePosWithOffset[1] })
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
       { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
     return [fit, fit ? board : state.board]
@@ -203,19 +207,6 @@ const getInitialState: () => IState = () => ({
   selectedPieceIndex: null,
   score: 0
 })
-
-function snapPositionToBoard(boardRef: RefObject<HTMLDivElement>, pageX: number, pageY: number) {
-  if (!boardRef.current) {
-    throw Error("Cannot snap position when board does not exist")
-  }
-  const { width, height, x, y } = boardRef.current.getBoundingClientRect()
-
-  const pointerXRelative = pageX - x
-  const pointerYRelative = pageY - y
-
-  const { colIndex, rowIndex } = mapRelativePositionToIndices({ width, height, pointerXRelative, pointerYRelative, boardSize })
-  return { colIndex, rowIndex }
-}
 
 function getNewPieces() {
   // return [
