@@ -76,6 +76,7 @@ export function clearFullRows(
   board: IBoard,
   boardSize: number
 ): [IBoard, number] {
+  const newBoard = board.slice() as IBoard
   let rowsAndColsCleared = 0
 
   // Check rows
@@ -88,7 +89,7 @@ export function clearFullRows(
     if (isFull) {
       rowsAndColsCleared++
       for (let i = rowStartIndex; i <= rowEndIndex; i++) {
-        board[i] = null
+        newBoard[i] = null
       }
     }
   }
@@ -106,7 +107,7 @@ export function clearFullRows(
     if (isFull) {
       rowsAndColsCleared++
       for (const x of indices) {
-        board[x] = null
+        newBoard[x] = null
       }
     }
   }
