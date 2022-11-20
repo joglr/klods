@@ -51,7 +51,6 @@ export default function App() {
 
   const pointerUpHandler = useCallback(function pointerUpHandler() {
     if (!boardRef.current) return
-    console.log(fit)
     if (!fit) {
       setState(p => ({...p, selectedPieceIndex: null}))
       return
