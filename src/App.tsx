@@ -44,6 +44,11 @@ export default function App() {
     return [fit, fit ? boardWithClearedRows : state.board]
   }, [mousePosWithOffset, state])
 
+  const boardWithClearedRows = useMemo<IBoard>(() => {
+    const [boardWithClearedRows] = fit ? clearFullRows(boardWithPreview, boardSize) : [state.board]
+    return boardWithClearedRows
+  }, [boardWithPreview, fit, state.board])
+
   useEffect(() => {
     const highscore = Math.max(state.highscore, state.score).toString()
     localStorage.setItem(highscoreLocalStorageKey, highscore)
@@ -120,7 +125,7 @@ export default function App() {
               className="board"
               ref={boardRef}
             >
-              {boardWithPreview.map((square, i) =>
+              {boardWithClearedRows.map((square, i) =>
                 <Square key={i} square={square} />
               )}
             </div>
