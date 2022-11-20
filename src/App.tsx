@@ -3,7 +3,7 @@ import './App.css'
 import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN } from './util'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
 import { FullscreenButton } from './components/FullscreenButton'
@@ -43,9 +43,15 @@ export default function App() {
     return [fit, fit ? board : state.board]
   }, [mousePosWithOffset, state])
 
-  const boardWithClearedRows = useMemo<IBoard>(() => {
-    const [boardWithClearedRows] = fit ? clearFullRows(boardWithPreview, boardSize) : [state.board]
-    return boardWithClearedRows
+  const {boardWithClearedRows, rowsToClear, colsToClear } = useMemo<{
+    boardWithClearedRows: IBoard,
+    rowsToClear: number[]
+    colsToClear: number[]
+  }>(() => {
+    const { newBoard: boardWithClearedRows, rowsToClear, colsToClear } = fit
+      ? clearFullRows(boardWithPreview, boardSize)
+      : { newBoard: state.board, rowsToClear: [], colsToClear: [] }
+    return { boardWithClearedRows, rowsToClear, colsToClear}
   }, [boardWithPreview, fit, state.board])
 
   useEffect(() => {
@@ -71,11 +77,11 @@ export default function App() {
     const [selectedPiece, selectedPieceIndex] = tryGetPieceFromState(state)
     if (!selectedPiece) return
 
-    const [updatedBoard, rowsAndColsCleared] = clearFullRows(boardWithPreview, boardSize)
+    const { newBoard, rowsAndColsCleared } = clearFullRows(boardWithPreview, boardSize)
     setState(prevState => {
       const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
       return ({
-        board: updatedBoard,
+        board: newBoard,
         userPieces: userPieces.every(p => p == null)
           ? getNewPieces()
           : userPieces,
@@ -124,8 +130,12 @@ export default function App() {
               className="board"
               ref={boardRef}
             >
-              {boardWithClearedRows.map((square, i) =>
-                <Square key={i} square={square} />
+              {boardWithPreview.map((square, i) =>
+                {
+                  const [colIndex, rowIndex] = calculateLocationFromIndex(i, boardSize)
+                  const shouldBlink = rowsToClear.includes(rowIndex) || colsToClear.includes(colIndex)
+                  return <Square key={i} square={square} blink={shouldBlink} />
+                }
               )}
             </div>
           </div>

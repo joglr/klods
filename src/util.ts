@@ -12,7 +12,10 @@ export const pickOne = <T>(values: T[]) =>
   values[Math.floor(Math.random() * values.length)]
 
 export const drawN = <T>(values: T[], amount = 1) =>
-  values.slice().sort(() => Math.random() - 0.5).slice(0, amount)
+  values
+    .slice()
+    .sort(() => Math.random() - 0.5)
+    .slice(0, amount)
 
 export const getPieceSize = (p: IPiece) => ({
   width: getPieceWidth(p),
@@ -75,9 +78,16 @@ export function checkIfPieceFitsAndUpdateBoard({
 export function clearFullRows(
   board: IBoard,
   boardSize: number
-): [IBoard, number] {
+): {
+  newBoard: IBoard
+  rowsAndColsCleared: number
+  rowsToClear: number[]
+  colsToClear: number[]
+} {
   const newBoard = board.slice() as IBoard
   let rowsAndColsCleared = 0
+  const rowsToClear: number[] = []
+  const colsToClear: number[] = []
 
   // Check rows
   for (let i = 0; i < boardSize; i++) {
@@ -88,6 +98,7 @@ export function clearFullRows(
     const isFull = row.every((square) => square !== null)
 
     if (isFull) {
+      rowsToClear.push(i)
       rowsAndColsCleared++
       for (let i = rowStartIndex; i <= rowEndIndex; i++) {
         newBoard[i] = null
@@ -106,13 +117,19 @@ export function clearFullRows(
     }
     const isFull = col.every((square) => square !== null)
     if (isFull) {
+      colsToClear.push(i)
       rowsAndColsCleared++
       for (const x of indices) {
         newBoard[x] = null
       }
     }
   }
-  return [newBoard, rowsAndColsCleared]
+  return {
+    newBoard,
+    rowsAndColsCleared,
+    rowsToClear,
+    colsToClear,
+  }
 }
 
 export function generateFitTest(
@@ -190,7 +207,7 @@ export function snapPositionToBoard({
   return {
     colIndex,
     rowIndex,
-   }
+  }
 }
 
 export function mapRelativePositionToIndices({
@@ -206,7 +223,7 @@ export function mapRelativePositionToIndices({
   pointerXRelative: number
   pointerYRelative: number
 }) {
-  const colIndex = Math.round((pointerXRelative / width) * (boardSize))
-  const rowIndex = Math.round((pointerYRelative / height) * (boardSize))
+  const colIndex = Math.round((pointerXRelative / width) * boardSize)
+  const rowIndex = Math.round((pointerYRelative / height) * boardSize)
   return { colIndex, rowIndex }
 }

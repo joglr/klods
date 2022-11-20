@@ -16,8 +16,8 @@ describe("clearFullRows", () => {
       _, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _,
     ]
-    const [, amountCleared] = clearFullRows(board, 8)
-    expect(amountCleared).toBe(0)
+    const { rowsAndColsCleared } = clearFullRows(board, 8)
+    expect(rowsAndColsCleared).toBe(0)
   })
 
   it("clears a single row properly", () => {
@@ -31,8 +31,8 @@ describe("clearFullRows", () => {
       _, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _,
     ]
-    const [newBoard, amountCleared] = clearFullRows(board, 8)
-    expect(amountCleared).toBe(1)
+    const { newBoard, rowsAndColsCleared } = clearFullRows(board, 8)
+    expect(rowsAndColsCleared ).toBe(1)
     expect(newBoard).toEqual(createEmptyBoard(8))
   })
 
@@ -47,8 +47,8 @@ describe("clearFullRows", () => {
       _, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _,
     ]
-    const [newBoard, amountCleared] = clearFullRows(board, 8)
-    expect(amountCleared).toBe(0)
+    const { newBoard, rowsAndColsCleared } = clearFullRows(board, 8)
+    expect(rowsAndColsCleared ).toBe(0)
     expect(newBoard).toEqual(board)
   })
 
@@ -63,8 +63,8 @@ describe("clearFullRows", () => {
       s, _, s, s, s, s, s, s,
       _, s, s, s, s, s, s, s,
     ]
-    const [newBoard, amountCleared] = clearFullRows(board, 8)
-    expect(amountCleared).toBe(0)
+    const { newBoard, rowsAndColsCleared } = clearFullRows(board, 8)
+    expect(rowsAndColsCleared).toBe(0)
     expect(newBoard).toEqual(board)
   })
 
@@ -79,8 +79,8 @@ describe("clearFullRows", () => {
       s, s, s, s, s, s, _, s,
       s, s, s, s, s, s, s, _,
     ]
-    const [newBoard, amountCleared] = clearFullRows(board, 8)
-    expect(amountCleared).toBe(0)
+    const { newBoard, rowsAndColsCleared } = clearFullRows(board, 8)
+    expect(rowsAndColsCleared).toBe(0)
     expect(newBoard).toEqual(board)
   })
 
