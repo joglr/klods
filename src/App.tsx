@@ -40,8 +40,7 @@ export default function App() {
     const { colIndex, rowIndex } = snapPositionToBoard({ boardSize, width, height, x, y, pageX: mousePosWithOffset[0], pageY: mousePosWithOffset[1] })
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
       { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
-    const [boardWithClearedRows] = board ? clearFullRows(board, boardSize) : [null]
-    return [fit, fit ? boardWithClearedRows : state.board]
+    return [fit, fit ? board : state.board]
   }, [mousePosWithOffset, state])
 
   const boardWithClearedRows = useMemo<IBoard>(() => {
