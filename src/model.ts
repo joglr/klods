@@ -1,5 +1,15 @@
-export type IBoard = (ISquare | null)[]
+type s = ISquare | null
 
+export type IBoard = [
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+  s, s, s, s, s, s, s, s,
+]
 export interface ISquare {
   hue: number
 }

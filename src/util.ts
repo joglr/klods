@@ -1,7 +1,7 @@
 import type { IBoard, IPiece, IState } from "./model"
 
-export const createEmptyBoard = (boardSize: number) =>
-  Array.from({ length: Math.pow(boardSize, 2) }).map(() => null)
+export const createEmptyBoard: (boardSize: number) => IBoard = (boardSize) =>
+  Array.from({ length: Math.pow(boardSize, 2) }).map(() => null) as IBoard
 
 export const createRainbowBoard = (boardSize: number) =>
   Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({
@@ -48,7 +48,7 @@ export function checkIfPieceFitsAndUpdateBoard({
     return [false, null]
   }
 
-  const updatedBoard = board.slice()
+  const updatedBoard = board.slice() as IBoard
 
   for (let i = 0; i < piece.length; i++) {
     const row = piece[i]
@@ -83,7 +83,8 @@ export function clearFullRows(
   for (let i = 0; i < boardSize; i++) {
     const rowStartIndex = i * boardSize
     const rowEndIndex = rowStartIndex + boardSize - 1
-    const row = board.slice(rowStartIndex, rowEndIndex)
+    // Slice is exclusive of last index, so we need to add 1
+    const row = board.slice(rowStartIndex, rowEndIndex + 1)
     const isFull = row.every((square) => square !== null)
 
     if (isFull) {
@@ -111,7 +112,7 @@ export function clearFullRows(
       }
     }
   }
-  return [board, rowsAndColsCleared]
+  return [newBoard, rowsAndColsCleared]
 }
 
 export function generateFitTest(
