@@ -1,8 +1,8 @@
-import { IBoard } from "../src/model"
+import { IBoard, ISquare } from "../src/model"
 import { clearFullRows, createEmptyBoard } from "../src/util"
 
 const _ = null
-const s = { hue: 200 }
+const s: ISquare = { hue: 200 }
 
 describe("clearFullRows", () => {
   it("does not clear an empty board", () => {
