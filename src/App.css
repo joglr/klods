@@ -21,6 +21,10 @@
   overflow: hidden;
 }
 
+.undo {
+  margin-top: 1em;
+}
+
 .app-wrapper {
   height: 100vh;
   width: 100vw;
