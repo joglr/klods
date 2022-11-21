@@ -6,7 +6,6 @@ import { Square } from './components/Square'
 import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex, createRainbowBoard, checkIfPieceCanBePlaced } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
-import { FullscreenButton } from './components/FullscreenButton'
 
 const INITIAL_UNDOSLEFT = 3
 
