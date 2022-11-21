@@ -70,12 +70,16 @@ export default function App() {
       highscore: Math.max(prevState.highscore, prevState.score)
     }))
     setUndosLeft(INITIAL_UNDOSLEFT)
+    setPrevState(getInitialState)
   }
 
   const undo = () => {
-    setState(prevState)
-    setQueue(state.userPieces)
-    setUndosLeft(undosLeft - 1)
+    // console.log(Object.is(prevState, state)) // This gives false..
+    if(JSON.stringify(prevState) !== JSON.stringify(state)){
+      setState(prevState)
+      setQueue(state.userPieces)
+      setUndosLeft(undosLeft - 1)
+    }
   }
 
   const pointerUpHandler = useCallback(function pointerUpHandler() {
