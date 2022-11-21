@@ -1,4 +1,15 @@
-const rootStyles = getComputedStyle(document.documentElement)
+const rootStyles = process.env.NODE_ENV !== "test" ? getComputedStyle(document.documentElement) : {
+  values: {
+    "--board-size": "8",
+    "--square-size-units": "3.5"
+  },
+  getPropertyValue(prop: keyof typeof this.values) {
+    if (process.env.NODE_ENV !== "test") {
+      throw new Error("getComputedStyle fallback only meant for testing");
+    }
+    return this.values[prop];
+  }
+};
 /**
  * Width of a square in viewport height units
  */
