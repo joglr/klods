@@ -3,7 +3,7 @@ import './App.css'
 import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex } from './util'
+import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex, createRainbowBoard, checkIfPieceCanBePlaced } from './util'
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
 import { usePointerExit } from './hooks'
 import { FullscreenButton } from './components/FullscreenButton'
@@ -35,7 +35,16 @@ export default function App() {
     ])
   }, [pointer.pos, pointer.type, state])
 
+  const { pieceCanBePlacedValues, gameOver } = useMemo(() => {
+    const values = state.userPieces.map((p) =>
+      !p ? false : checkIfPieceCanBePlaced(state.board, p)
+    )
+    const gameOver = values.every((v) => !v)
+    return { pieceCanBePlacedValues: values, gameOver }
+  }, [state.board, state.userPieces])
+
   const [fit, boardWithPreview] = useMemo<[boolean, IBoard]>(() => {
+    if (gameOver) return [false, createRainbowBoard(boardSize)]
     const [selectedPiece] = tryGetPieceFromState(state)
     if (!selectedPiece) return [false, state.board]
     if (!boardRef.current) {
@@ -46,10 +55,10 @@ export default function App() {
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
       { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
     return [fit, fit ? board : state.board]
-  }, [mousePosWithOffset, state])
+  }, [gameOver, mousePosWithOffset, state])
 
-  const {boardWithClearedRows, rowsToClear, colsToClear } = useMemo<{
-    boardWithClearedRows: IBoard,
+  const { rowsToClear, colsToClear } = useMemo<{
+    boardWithClearedRows: IBoard
     rowsToClear: number[]
     colsToClear: number[]
   }>(() => {
@@ -138,10 +147,8 @@ export default function App() {
         <header className="header">
           <h1>Klods</h1>
           <div className="options">
-            <div>Score: {state.score}</div>
-            <div>High Score: {state.highscore}</div>
-            <button onClick={resetGame}>Reset game</button>
-            <FullscreenButton/>
+            <div className="button">Score: {state.score}</div>
+            <div className="button">High Score: {state.highscore}</div>
           </div>
           {/* <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
             Undo ({undosLeft})
@@ -162,60 +169,90 @@ export default function App() {
               )}
             </div>
           </div>
-          <div className="user-pieces">
-            {state.userPieces.map((piece, i) => piece === null ? <div /> :
-              <div className="piece" key={i}
-                onPointerDown={e => {
-                  // Prevent drag behaviour
-                  e.preventDefault()
-                  setPrevState(state)
-                  // Select the piece that was dragged from
-                  setState(prevState => ({
-                    ...prevState,
-                    selectedPieceIndex: i
-                  }))
-                  setPointer({
-                    offset: [e.pageX, e.pageY],
-                    pos: [e.pageX, e.pageY],
-                    type: e.pointerType
-                  })
-                }}
-              >
-                <div className="piece-grid"
-                  style={{
-                    gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
-                    gridTemplateRows: `repeat(${piece.length}, 1fr)`,
-                    ...state.selectedPieceIndex === i ? {
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      "--xt": `calc(${pointer.pos[0]}px - ${getOffsetFromPiece(piece, pointer.type)[0]} * var(--square-size))`,
-                      "--yt": `calc(${pointer.pos[1]}px - ${getOffsetFromPiece(piece, pointer.type)[1]} * var(--square-size))`,
-                      transform: `
+          {gameOver ? (
+            <div>
+              <button onClick={resetGame}>New game</button>
+            </div>
+          ) : (
+            <div className="user-pieces">
+              {state.userPieces.map((piece, pieceIndex) => {
+                if (piece === null) {
+                  return <div key={pieceIndex} />
+                }
+
+                return (
+                  <div
+                    className="piece"
+                    key={pieceIndex}
+                    onPointerDown={(e) => {
+                      // Prevent drag behaviour
+                      e.preventDefault()
+                      if (gameOver) return
+                      setPrevState(state)
+                      // Select the piece that was dragged from
+                      setState((prevState) => ({
+                        ...prevState,
+                        selectedPieceIndex: pieceIndex,
+                      }))
+                      setPointer({
+                        offset: [e.pageX, e.pageY],
+                        pos: [e.pageX, e.pageY],
+                        type: e.pointerType,
+                      })
+                    }}
+                  >
+                    <div
+                      className="piece-grid"
+                      style={{
+                        gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
+                        gridTemplateRows: `repeat(${piece.length}, 1fr)`,
+                        ...(state.selectedPieceIndex === pieceIndex
+                          ? {
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              "--xt": `calc(${pointer.pos[0]}px - ${
+                                getOffsetFromPiece(piece, pointer.type)[0]
+                              } * var(--square-size))`,
+                              "--yt": `calc(${pointer.pos[1]}px - ${
+                                getOffsetFromPiece(piece, pointer.type)[1]
+                              } * var(--square-size))`,
+                              transform: `
                         translate(var(--xt), var(--yt))
                         scale(1)`,
-                      pointerEvents: "none",
-                      touchAction: "none",
-                      opacity: fit ? 0.5 : 1
-                      // opacity: 0.5
-                    } : {
-                      "--square-size--units": "var(--square-shrink-size-units)"
-                    },
-                  }}
-                >
-                  {piece.map((rows, j) => (
-                    <>
-                      {rows.map((fill, k) => (
-                        <Square
-                          key={`${j},${k}`}
-                          square={fill === 1 ? { hue: 100 } : null}
-                        />
+                              pointerEvents: "none",
+                              touchAction: "none",
+                              opacity: fit ? 0.5 : 1,
+                              // opacity: 0.5
+                            }
+                          : {
+                              "--square-size--units":
+                                "var(--square-shrink-size-units)",
+                            }),
+                      }}
+                    >
+                      {piece.map((rows, j) => (
+                        <>
+                          {rows.map((fill, k) => (
+                            <Square
+                              key={`${j},${k}`}
+                              square={
+                                fill === 1
+                                  ? pieceCanBePlacedValues[pieceIndex]
+                                    ? { hue: 100 }
+                                    : { hue: 0 }
+                                  : null
+                              }
+                            />
+                          ))}
+                        </>
                       ))}
-                    </>
-                  ))}
-              </div>
-            </div>)}
-          </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </main>
       </div>
     </div>
