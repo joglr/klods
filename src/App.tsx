@@ -8,8 +8,13 @@ import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './cons
 import { usePointerExit } from './hooks'
 import { FullscreenButton } from './components/FullscreenButton'
 
+const INITIAL_UNDOSLEFT = 3
+
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
+  const [prevState, setPrevState] = useState<IState>(state)
+  const [undosLeft, setUndosLeft] = useState<number>(INITIAL_UNDOSLEFT)
+  const [queue, setQueue] = useState<any>()
   const boardRef = useRef<HTMLDivElement>(null)
   const [pointer, setPointer] = useState<{
     offset: [number, number],
@@ -59,10 +64,19 @@ export default function App() {
     localStorage.setItem(highscoreLocalStorageKey, highscore)
   }, [state.score, state.highscore])
 
-  const resetGame = () => setState(prevState => ({
-    ...getInitialState(),
-    highscore: Math.max(prevState.highscore, prevState.score)
-  }))
+  const resetGame = () => {
+    setState(prevState => ({
+      ...getInitialState(),
+      highscore: Math.max(prevState.highscore, prevState.score)
+    }))
+    setUndosLeft(INITIAL_UNDOSLEFT)
+  }
+
+  const undo = () => {
+    setState(prevState)
+    setQueue(state.userPieces)
+    setUndosLeft(undosLeft - 1)
+  }
 
   const pointerUpHandler = useCallback(function pointerUpHandler() {
     if (!boardRef.current) return
@@ -83,13 +97,15 @@ export default function App() {
       return ({
         board: newBoard,
         userPieces: userPieces.every(p => p == null)
-          ? getNewPieces()
+          ? getNewPieces(queue)
           : userPieces,
         selectedPieceIndex: null,
         score: prevState.score + rowsAndColsCleared * boardSize,
         highscore: prevState.highscore
       })
     })
+
+    setQueue(null)
 
     // if (shouldSucceed !== fit) {
     //   prompt("red test", newTest)
@@ -123,6 +139,9 @@ export default function App() {
             <button onClick={resetGame}>Reset game</button>
             <FullscreenButton/>
           </div>
+          <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
+            Undo ({undosLeft})
+          </button>
         </header>
         <main className="game">
           <div className="board-wrapper">
@@ -145,7 +164,7 @@ export default function App() {
                 onPointerDown={e => {
                   // Prevent drag behaviour
                   e.preventDefault()
-
+                  setPrevState(state)
                   // Select the piece that was dragged from
                   setState(prevState => ({
                     ...prevState,
@@ -218,9 +237,9 @@ const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, n
 const getInitialState: () => IState = () => ({
   highscore: Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
   board: createEmptyBoard(boardSize),
-  userPieces: getNewPieces(),
+  userPieces: getNewPieces(null),
   selectedPieceIndex: null,
   score: 0
 })
 
-const getNewPieces = () => drawN(pieces, 3)
+const getNewPieces = (queue: any) => queue ? queue : drawN(pieces, 3)
