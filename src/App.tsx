@@ -114,7 +114,7 @@ export default function App() {
     // if (shouldSucceed !== fit) {
     //   prompt("red test", newTest)
     // }
-  }, [boardWithPreview, fit, state])
+  }, [boardWithPreview, fit, queue, state])
 
   usePointerExit(pointerUpHandler)
 
