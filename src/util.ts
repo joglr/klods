@@ -6,7 +6,7 @@ export const createEmptyBoard: (boardSize: number) => IBoard = (boardSize) =>
 export const createRainbowBoard = (boardSize: number) =>
   Array.from({ length: Math.pow(boardSize, 2) }).map((_, i) => ({
     hue: (i * 60) % 360,
-  }))
+  })) as IBoard
 
 export const pickOne = <T>(values: T[]) =>
   values[Math.floor(Math.random() * values.length)]
@@ -73,6 +73,28 @@ export function checkIfPieceFitsAndUpdateBoard({
   }
 
   return [true, updatedBoard]
+}
+
+export function checkIfPieceCanBePlaced(board: IBoard, p: IPiece) {
+  const boardSize = Math.sqrt(board.length)
+  const pieceWidth = getPieceWidth(p)
+  const pieceHeight = getPieceHeight(p)
+
+  for (let i = 0; i <= boardSize - pieceWidth; i++) {
+    for (let j = 0; j <= boardSize - pieceHeight; j++) {
+      const [fits] = checkIfPieceFitsAndUpdateBoard({
+        board,
+        piece: p,
+        squareLocation: [i, j],
+        boardSize: boardSize,
+      })
+
+      if (fits) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 export function clearFullRows(
