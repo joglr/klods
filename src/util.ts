@@ -36,9 +36,8 @@ export function checkIfPieceFitsAndUpdateBoard({
   boardSize: number
 }): [true, IBoard] | [false, null] {
   const { width, height } = getPieceSize(piece)
-  const pieceLocation = [0, 0]
-  const pieceMinX = squareLocation[0] - pieceLocation[1]
-  const pieceMinY = squareLocation[1] - pieceLocation[0]
+  const pieceMinX = squareLocation[0]
+  const pieceMinY = squareLocation[1]
   const pieceMaxX = pieceMinX + width
   const pieceMaxY = pieceMinY + height
 
