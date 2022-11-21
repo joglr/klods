@@ -14,7 +14,7 @@ export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
   const [prevState, setPrevState] = useState<IState>(state)
   const [undosLeft, setUndosLeft] = useState<number>(INITIAL_UNDOSLEFT)
-  const [queue, setQueue] = useState<any>()
+  const [queue, setQueue] = useState<(IPiece | null)[] | null>(null)
   const boardRef = useRef<HTMLDivElement>(null)
   const [pointer, setPointer] = useState<{
     offset: [number, number],
@@ -283,4 +283,4 @@ const getInitialState: () => IState = () => ({
   score: 0
 })
 
-const getNewPieces = (queue: any) => queue ? queue : drawN(pieces, 3)
+const getNewPieces = (queue: (IPiece | null)[] | null) => (queue ? queue : drawN(pieces, 3))
