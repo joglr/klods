@@ -35,7 +35,9 @@ h1 {
   margin-block: 8px;
 }
 
-button {
+button, .button {
+  line-height: 100%;
+  display: inline-block;
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -43,10 +45,12 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
-  cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:not(:disabled) {
+  cursor: pointer;
+}
+button:not(:disabled):hover {
   border-color: #646cff;
 }
 button:focus,
@@ -62,7 +66,7 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
+  button, .button {
     background-color: #f9f9f9;
   }
 }
