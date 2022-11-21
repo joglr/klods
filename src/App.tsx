@@ -143,9 +143,9 @@ export default function App() {
             <button onClick={resetGame}>Reset game</button>
             <FullscreenButton/>
           </div>
-          <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
+          {/* <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
             Undo ({undosLeft})
-          </button>
+          </button> */}
         </header>
         <main className="game">
           <div className="board-wrapper">
