@@ -40,7 +40,7 @@ export function checkIfPieceFitsAndUpdateBoard({
   const pieceMinX = squareLocation[0] - pieceLocation[1]
   const pieceMinY = squareLocation[1] - pieceLocation[0]
   const pieceMaxX = pieceMinX + width
-  const pieceMaxY = pieceMinY + height - 1
+  const pieceMaxY = pieceMinY + height
 
   if (
     pieceMinX < 0 ||
