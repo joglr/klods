@@ -170,10 +170,11 @@ export default function App() {
           <div className="options">
             <div className="button">Score: {state.score}</div>
             <div className="button">High Score: {state.highscore}</div>
+            <button onClick={resetGame}>Reset game</button>
+            <button ref={undoRef} disabled={undosLeft <= 0} className='undo' onClick={undo}>
+              Undo ({undosLeft})
+            </button>
           </div>
-          <button ref={undoRef} disabled={undosLeft <= 0} className='undo' onClick={undo}>
-            Undo ({undosLeft})
-          </button>
         </header>
         <main className="game">
           <div className="board-wrapper">

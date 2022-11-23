@@ -10,10 +10,6 @@
   overflow: hidden;
 }
 
-.undo {
-  margin-top: 1em;
-}
-
 .app-wrapper {
   height: 100vh;
   width: 100vw;
@@ -21,8 +17,13 @@
   margin: auto;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 16px 0;
+  gap: 16px 10px;
   justify-items: center;
+}
+
+.undo {
+  grid-column-start: 1;
+  grid-column-end: 3;
 }
 
 .header {
