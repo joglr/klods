@@ -67,7 +67,7 @@ export default function App() {
   }, [boardWithPreview, fit, state.board])
 
   // set this initial to disabled. So we don't mess with the 'undosLeft <= 0' on the button tag
-  useEffect(() => {undoRef.current.disabled = true}, [])
+  useEffect(() => {undoRef.current.disabled = true}, [undoRef])
 
   useEffect(() => {
     const highscore = Math.max(state.highscore, state.score).toString()
