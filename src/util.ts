@@ -49,7 +49,7 @@ export function checkIfPieceFitsAndUpdateBoard({
   ) {
     return [false, null]
   }
-
+  
   const updatedBoard = board.slice() as IBoard
 
   for (let i = 0; i < piece.length; i++) {

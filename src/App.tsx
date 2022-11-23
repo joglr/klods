@@ -12,6 +12,7 @@ export default function App() {
   const [prevState, setPrevState] = useState<IState>(state)
   const [undosLeft, setUndosLeft] = useState<number>(undos)
   const [queue, setQueue] = useState<(IPiece | null)[] | null>(null)
+  const undoRef = useRef<HTMLButtonElement>(null!)
   const boardRef = useRef<HTMLDivElement>(null)
   const [pointer, setPointer] = useState<{
     offset: [number, number],
@@ -50,7 +51,7 @@ export default function App() {
     const { width, height, x, y } = boardRef.current.getBoundingClientRect()
     const { colIndex, rowIndex } = snapPositionToBoard({ boardSize, width, height, x, y, pageX: mousePosWithOffset[0], pageY: mousePosWithOffset[1] })
     const [fit, board] = checkIfPieceFitsAndUpdateBoard(
-      { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
+      { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize })
     return [fit, fit ? board : state.board]
   }, [gameOver, mousePosWithOffset, state])
 
@@ -65,6 +66,9 @@ export default function App() {
     return { boardWithClearedRows, rowsToClear, colsToClear}
   }, [boardWithPreview, fit, state.board])
 
+  // set this initial to disabled. So we don't mess with the 'undosLeft <= 0' on the button tag
+  useEffect(() => {undoRef.current.disabled = true}, [])
+
   useEffect(() => {
     const highscore = Math.max(state.highscore, state.score).toString()
     localStorage.setItem(highscoreLocalStorageKey, highscore)
@@ -77,6 +81,8 @@ export default function App() {
     }))
     setUndosLeft(undos)
     setPrevState(getInitialState())
+    // disable on reset
+    undoRef.current.disabled = true
   }
 
   const undo = () => {
@@ -87,7 +93,7 @@ export default function App() {
 
     const state_ = JSON.stringify(state, (k, v)  => k === "userPieces" ? null : v)
     const getInitialState_ = JSON.stringify(getInitialState(), (k, v)  => k === "userPieces" ? null : v)
-    
+
     if(
       JSON.stringify(prevState.userPieces) !== JSON.stringify(state.userPieces) &&
       state_ !== getInitialState_
@@ -95,6 +101,10 @@ export default function App() {
       setState(prevState)
       setQueue(state.userPieces)
       setUndosLeft(undosLeft - 1)
+      // disable after undo
+      undoRef.current.disabled = true
+      // Cancel that the brick was picked up, because we set the prevState on the pick-up
+      pointerUpHandler()
     }
   }
 
@@ -114,10 +124,12 @@ export default function App() {
     const { newBoard, rowsAndColsCleared } = clearFullRows(boardWithPreview, boardSize)
     setState(prevState => {
       const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
+      // only enable if user has any undos left
+      undoRef.current.disabled = undosLeft <= 0
       return ({
         board: newBoard,
         userPieces: userPieces.every(p => p == null)
-          ? getNewPieces(queue)
+          ? getNewPieces(queue, undoRef)
           : userPieces,
         selectedPieceIndex: null,
         score: prevState.score + rowsAndColsCleared * boardSize,
@@ -125,11 +137,13 @@ export default function App() {
       })
     })
 
+    setPrevState(state)
     setQueue(null)
 
     // if (shouldSucceed !== fit) {
     //   prompt("red test", newTest)
     // }
+
   }, [boardWithPreview, fit, queue, state])
 
   usePointerExit(pointerUpHandler)
@@ -157,7 +171,7 @@ export default function App() {
             <div className="button">Score: {state.score}</div>
             <div className="button">High Score: {state.highscore}</div>
           </div>
-          <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
+          <button ref={undoRef} disabled={undosLeft <= 0} className='undo' onClick={undo}>
             Undo ({undosLeft})
           </button>
         </header>
@@ -277,9 +291,17 @@ const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, n
 const getInitialState: () => IState = () => ({
   highscore: Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
   board: createEmptyBoard(boardSize),
-  userPieces: getNewPieces(null),
+  userPieces: getNewPieces(null, null),
   selectedPieceIndex: null,
   score: 0
 })
 
-const getNewPieces = (queue: (IPiece | null)[] | null) => (queue ? queue : drawN(pieces, 3))
+const getNewPieces = (queue: (IPiece | null)[] | null, undoRef: any) => {
+  if(queue !== null){
+    return queue
+  } else{
+    // disable undo when new round has been seen
+    undoRef && (undoRef.current.disabled = true)
+    return drawN(pieces, 3)
+  }
+}
