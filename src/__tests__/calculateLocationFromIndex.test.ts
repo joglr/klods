@@ -1,4 +1,4 @@
-import { calculateLocationFromIndex } from "../src/util"
+import { calculateLocationFromIndex } from "../util"
 
 describe("calculateLocationFromIndex", () => {
   it("calculates the correct location for index 0", () => {

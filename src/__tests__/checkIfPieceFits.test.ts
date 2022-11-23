@@ -1,5 +1,5 @@
-import { IState } from "../src/model"
-import { checkIfPieceFitsAndUpdateBoard, createEmptyBoard } from "../src/util"
+import { IState } from "../model"
+import { checkIfPieceFitsAndUpdateBoard, createEmptyBoard } from "../util"
 
 describe("checkIfPieceFits", () => {
   it("succeeds with placing 3x3 wedge piece in bottom right corner", () => {

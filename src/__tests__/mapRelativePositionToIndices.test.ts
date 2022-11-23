@@ -1,4 +1,4 @@
-import { mapRelativePositionToIndices } from "../src/util"
+import { mapRelativePositionToIndices } from "../util"
 
 describe("mapRelativePositionToIndices", () => {
   /*

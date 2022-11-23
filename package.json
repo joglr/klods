@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src __tests__"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src"
   },
   "dependencies": {
     "react": "^18.2.0",
