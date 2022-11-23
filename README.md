@@ -1,10 +1,7 @@
 
 # Klods
 
-Klods is a game where you have to think ahead. At each level random bricks appear, now stackle them up to get full lines either up/down or to the side to get points.
-
-
-## Screenshots
+Klods is a tetris-like game where you have to think ahead. Random puzzle pieces appear, and it is your job to fit them together, to clear rows and columns. Each tile cleared gives a point!
 
 ![App Screenshot](https://screenshot.launchbrightly.com/klods/klods/desktop/dark/game.png)
 
