@@ -17,7 +17,7 @@
   margin: auto;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 16px 10px;
+  gap: 16px 0;
   justify-items: center;
 }
 
