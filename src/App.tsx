@@ -4,15 +4,15 @@ import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
 import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex, createRainbowBoard, checkIfPieceCanBePlaced } from './util'
-import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
+import { boardSize, getSquareSizePixels, highscoreLocalStorageKey, undos } from './constants'
 import { usePointerExit } from './hooks'
 
-const INITIAL_UNDOSLEFT = 3
+
 
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
   const [prevState, setPrevState] = useState<IState>(state)
-  const [undosLeft, setUndosLeft] = useState<number>(INITIAL_UNDOSLEFT)
+  const [undosLeft, setUndosLeft] = useState<number>(undos)
   const [queue, setQueue] = useState<(IPiece | null)[] | null>(null)
   const boardRef = useRef<HTMLDivElement>(null)
   const [pointer, setPointer] = useState<{
@@ -77,7 +77,7 @@ export default function App() {
       ...getInitialState(),
       highscore: Math.max(prevState.highscore, prevState.score)
     }))
-    setUndosLeft(INITIAL_UNDOSLEFT)
+    setUndosLeft(undos)
     setPrevState(getInitialState)
   }
 
@@ -149,9 +149,9 @@ export default function App() {
             <div className="button">Score: {state.score}</div>
             <div className="button">High Score: {state.highscore}</div>
           </div>
-          {/* <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
+          <button disabled={undosLeft <= 0} className='undo' onClick={undo}>
             Undo ({undosLeft})
-          </button> */}
+          </button>
         </header>
         <main className="game">
           <div className="board-wrapper">
