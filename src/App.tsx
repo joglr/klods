@@ -144,7 +144,7 @@ export default function App() {
     //   prompt("red test", newTest)
     // }
 
-  }, [boardWithPreview, fit, queue, state, undosLeft])
+  }, [boardWithPreview, fit, queue, state, undoRef, undosLeft])
 
   usePointerExit(pointerUpHandler)
 
