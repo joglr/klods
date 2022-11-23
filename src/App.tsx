@@ -125,7 +125,7 @@ export default function App() {
     setState(prevState => {
       const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
       // only enable if user has any undos left
-      undoRef.current.disabled = undosLeft <= 0
+      
       return ({
         board: newBoard,
         userPieces: userPieces.every(p => p == null)
@@ -136,7 +136,7 @@ export default function App() {
         highscore: prevState.highscore
       })
     })
-
+    undoRef.current.disabled = undosLeft <= 0
     setPrevState(state)
     setQueue(null)
 
