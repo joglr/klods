@@ -1,5 +1,5 @@
-import type { IBoard, IPiece, ISquare } from "../src/model"
-import { checkIfPieceCanBePlaced } from "../src/util"
+import type { IBoard, IPiece, ISquare } from "../model"
+import { checkIfPieceCanBePlaced } from "../util"
 
 
 const _ = null

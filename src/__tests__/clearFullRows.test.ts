@@ -1,5 +1,5 @@
-import { IBoard, ISquare } from "../src/model"
-import { clearFullRows, createEmptyBoard } from "../src/util"
+import { IBoard, ISquare } from "../model"
+import { clearFullRows, createEmptyBoard } from "../util"
 
 const _ = null
 const s: ISquare = { hue: 200 }
