@@ -125,7 +125,7 @@ export default function App() {
     setState(prevState => {
       const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
       // only enable if user has any undos left
-      
+
       return ({
         board: newBoard,
         userPieces: userPieces.every(p => p == null)
@@ -144,7 +144,7 @@ export default function App() {
     //   prompt("red test", newTest)
     // }
 
-  }, [boardWithPreview, fit, queue, state])
+  }, [boardWithPreview, fit, queue, state, undosLeft])
 
   usePointerExit(pointerUpHandler)
 
