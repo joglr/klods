@@ -1,15 +1,4 @@
-* {
-  box-sizing: border-box;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 :root {
-  --square-shrink-size-units: 2.5;
   --square-size-units: 3.5;
   --square-size: calc(var(--square-size-units) * 1vh);
   --board-size: 8;
@@ -94,15 +83,20 @@
   outline: 1px grey solid;
 }
 
-.filled {
-  color: hsl(var(--hue) 100% 40%);
-  background-color: currentColor;
-  border: 0.8vh currentColor solid;
+.square.transition {
+  transition: all 200ms;
+}
+
+.square {
+  --color: hsla(var(--hue, 0) var(--sat, 100%) var(--lig, 40%) / var(--opa, 1));
+  color: var(--color);
+  background-color: var(--color);
+  border: 0.8vh var(--color) solid;
   border-color:
-    hsl(var(--hue) 100% 65%)
-    hsl(var(--hue) 100% 25%)
-    hsl(var(--hue) 100% 25%)
-    hsl(var(--hue) 100% 65%);
+    hsla(var(--hue) 100% var(--lig, 65%) / var(--opa, 1))
+    hsla(var(--hue) 100% var(--lig, 25%) / var(--opa, 1))
+    hsla(var(--hue) 100% var(--lig, 25%) / var(--opa, 1))
+    hsla(var(--hue) 100% var(--lig, 65%) / var(--opa, 1));
 }
 
 .user-pieces {
@@ -125,6 +119,14 @@
   display: grid;
   place-items: center;
   place-content: center;
+}
+.piece-grid.selected {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(var(--xt), var(--yt)) scale(1);
+  pointer-events: none;
+  touch-action: none;
 }
 
 .piece-grid .square {
