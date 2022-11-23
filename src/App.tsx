@@ -7,8 +7,6 @@ import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, genera
 import { boardSize, getSquareSizePixels, highscoreLocalStorageKey, undos } from './constants'
 import { usePointerExit } from './hooks'
 
-
-
 export default function App() {
   const [state, setState] = useState<IState>(getInitialState)
   const [prevState, setPrevState] = useState<IState>(state)
@@ -78,12 +76,22 @@ export default function App() {
       highscore: Math.max(prevState.highscore, prevState.score)
     }))
     setUndosLeft(undos)
-    setPrevState(getInitialState)
+    setPrevState(getInitialState())
   }
 
   const undo = () => {
+
     // console.log(Object.is(prevState, state)) // This gives false..
-    if(JSON.stringify(prevState) !== JSON.stringify(state)){
+    // this will just exclude userPieces from both objects, because they (almost) never match.
+    // this wil prevent undo when reset has been done
+
+    const state_ = JSON.stringify(state, (k, v)  => k === "userPieces" ? null : v)
+    const getInitialState_ = JSON.stringify(getInitialState(), (k, v)  => k === "userPieces" ? null : v)
+    
+    if(
+      JSON.stringify(prevState.userPieces) !== JSON.stringify(state.userPieces) &&
+      state_ !== getInitialState_
+    ){
       setState(prevState)
       setQueue(state.userPieces)
       setUndosLeft(undosLeft - 1)
