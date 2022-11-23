@@ -163,7 +163,7 @@ export default function App() {
                 {
                   const [colIndex, rowIndex] = calculateLocationFromIndex(i, boardSize)
                   const shouldBlink = rowsToClear.includes(rowIndex) || colsToClear.includes(colIndex)
-                  return <Square key={i} square={square} blink={shouldBlink} />
+                  return <Square key={i} square={square} blink={shouldBlink} hasTransition={gameOver} />
                 }
               )}
             </div>
@@ -201,33 +201,24 @@ export default function App() {
                     }}
                   >
                     <div
-                      className="piece-grid"
+                      className={state.selectedPieceIndex === pieceIndex
+                        ? "piece-grid selected"
+                        : "piece-grid"
+                      }
                       style={{
                         gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
                         gridTemplateRows: `repeat(${piece.length}, 1fr)`,
                         ...(state.selectedPieceIndex === pieceIndex
                           ? {
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
                               "--xt": `calc(${pointer.pos[0]}px - ${
                                 getOffsetFromPiece(piece, pointer.type)[0]
                               } * var(--square-size))`,
                               "--yt": `calc(${pointer.pos[1]}px - ${
                                 getOffsetFromPiece(piece, pointer.type)[1]
                               } * var(--square-size))`,
-                              transform: `
-                        translate(var(--xt), var(--yt))
-                        scale(1)`,
-                              pointerEvents: "none",
-                              touchAction: "none",
-                              opacity: fit ? 0.5 : 1,
-                              // opacity: 0.5
+                              opacity: fit ? 0.3 : 1,
                             }
-                          : {
-                              "--square-size--units":
-                                "var(--square-shrink-size-units)",
-                            }),
+                          : {}),
                       }}
                     >
                       {piece.map((rows, j) => (
@@ -242,6 +233,7 @@ export default function App() {
                                     : { hue: 0 }
                                   : null
                               }
+                              hasTransition={true}
                             />
                           ))}
                         </>
@@ -268,7 +260,7 @@ function tryGetPieceFromState(state: IState): [IPiece, number] | [null, null] {
 
 const getOffsetFromPiece: (p: IPiece, pointerType: string) => [number, number] = (p, pt) => ([
   getPieceWidth(p) / 2,
-  getPieceHeight(p) + (pt === "mouse" ? 0 : 2)
+  getPieceHeight(p) + (pt === "mouse" ? 0 : 5)
 ])
 
 const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, number] = (p, pt) =>

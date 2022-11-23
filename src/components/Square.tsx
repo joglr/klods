@@ -4,8 +4,11 @@ import type { ISquare } from "../model"
 export function Square({
   square,
   blink = false,
+  hasTransition,
   ...props
-}: { square: ISquare | null; blink?: boolean } & HTMLProps<HTMLDivElement>) {
+}: { square: ISquare | null; blink?: boolean, hasTransition?: boolean } & HTMLProps<HTMLDivElement>) {
+  const classes = ["square"]
+  if (hasTransition) classes.push("transition")
   const conditionalProps = square
     ? {
         style: {
@@ -13,13 +16,18 @@ export function Square({
           ...blink ? {
             animation: "blink 1s infinite",
           } : {
-
           }
-         } as CSSProperties,
-        className: "square filled",
+        } as CSSProperties,
+        className: classes.join(" "),
       }
-    : {
-        className: "square",
+      : {
+        className: classes.join(" "),
+        style: {
+          "--hue": 0,
+          "--sat": 0,
+          "--lig": 0,
+          "--opa": 0,
+        } as CSSProperties
       }
 
   return <div {...props} {...conditionalProps} />
