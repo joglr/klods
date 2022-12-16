@@ -1,5 +1,5 @@
-import { IState } from "../model"
-import { checkIfPieceFitsAndUpdateBoard, createEmptyBoard } from "../util"
+import { IPiece, IState } from "../model"
+import { checkIfPieceFitsAndUpdateBoard, createEmptyBoard, pieceFromSquares } from "../util"
 
 describe("checkIfPieceFits", () => {
   it("succeeds with placing 3x3 wedge piece in bottom right corner", () => {
@@ -17,7 +17,7 @@ describe("checkIfPieceFits", () => {
     const succeesState1: IState = {
       highscore: 0,
       board: createEmptyBoard(8),
-      userPieces: [[[1,1],[0,1]],[[1,1],[1,1],[1,1]],[[0,0,1],[0,0,1],[1,1,1]]],
+      userPieces: [[[1,1],[0,1]],[[1,1],[1,1],[1,1]],[[0,0,1],[0,0,1],[1,1,1]]].map(pieceFromSquares),
       selectedPieceIndex: 2,
       score: 0,
     }
@@ -43,7 +43,7 @@ describe("checkIfPieceFits", () => {
     const failureState: IState = {
       highscore: 0,
       board: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"hue":200},{"hue":200},null,null,null,null,null,null,{"hue":200},{"hue":200}],
-      userPieces: [[[1,1],[1,0]],[[1,1,1,1],[1,0,0,0]],[[1,1],[0,1],[0,1],[0,1]]],
+      userPieces: [[[1,1],[1,0]],[[1,1,1,1],[1,0,0,0]],[[1,1],[0,1],[0,1],[0,1]]].map(pieceFromSquares),
       selectedPieceIndex: 0,
       score: 0,
     }

@@ -4,7 +4,7 @@ import { pieces } from './pieces'
 import type { IBoard, IPiece, IState } from './model'
 import { Square } from './components/Square'
 import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex, createRainbowBoard, checkIfPieceCanBePlaced } from './util'
-import { boardSize, getSquareSizePixels, highscoreLocalStorageKey } from './constants'
+import { boardSize, getSquareSizePixels, highscoreLocalStorageKey, hues } from './constants'
 import { usePointerExit } from './hooks'
 
 const INITIAL_UNDOSLEFT = 3
@@ -206,8 +206,8 @@ export default function App() {
                         : "piece-grid"
                       }
                       style={{
-                        gridTemplateColumns: `repeat(${piece[0].length}, 1fr)`,
-                        gridTemplateRows: `repeat(${piece.length}, 1fr)`,
+                        gridTemplateColumns: `repeat(${piece.squares[0].length}, 1fr)`,
+                        gridTemplateRows: `repeat(${piece.squares.length}, 1fr)`,
                         ...(state.selectedPieceIndex === pieceIndex
                           ? {
                               "--xt": `calc(${pointer.pos[0]}px - ${
@@ -221,7 +221,7 @@ export default function App() {
                           : {}),
                       }}
                     >
-                      {piece.map((rows, j) => (
+                      {piece.squares.map((rows, j) => (
                         <>
                           {rows.map((fill, k) => (
                             <Square
@@ -229,7 +229,7 @@ export default function App() {
                               square={
                                 fill === 1
                                   ? pieceCanBePlacedValues[pieceIndex]
-                                    ? { hue: 100 }
+                                    ? { hue: piece.hue}
                                     : { hue: 0 }
                                   : null
                               }
@@ -274,4 +274,8 @@ const getInitialState: () => IState = () => ({
   score: 0
 })
 
-const getNewPieces = (queue: (IPiece | null)[] | null) => (queue ? queue : drawN(pieces, 3))
+const getNewPieces = (_queue: (IPiece | null)[] | null) : (IPiece | null)[] => drawN(pieces, 3)
+  .map(p => ({
+    squares: p,
+    hue: drawN(hues, 1)[0]
+  }))

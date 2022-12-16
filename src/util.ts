@@ -21,8 +21,8 @@ export const getPieceSize = (p: IPiece) => ({
   width: getPieceWidth(p),
   height: getPieceHeight(p),
 })
-export const getPieceWidth = (p: IPiece) => p[0].length
-export const getPieceHeight = (p: IPiece) => p.length
+export const getPieceWidth = (p: IPiece) => p.squares[0].length
+export const getPieceHeight = (p: IPiece) => p.squares.length
 
 export function checkIfPieceFitsAndUpdateBoard({
   board,
@@ -52,8 +52,8 @@ export function checkIfPieceFitsAndUpdateBoard({
 
   const updatedBoard = board.slice() as IBoard
 
-  for (let i = 0; i < piece.length; i++) {
-    const row = piece[i]
+  for (let i = 0; i < piece.squares.length; i++) {
+    const row = piece.squares[i]
 
     for (let j = 0; j < row.length; j++) {
       const boardIndex = pieceMinX + pieceMinY * boardSize + i * boardSize + j
@@ -67,7 +67,7 @@ export function checkIfPieceFitsAndUpdateBoard({
       if (boardSquare !== null) {
         return [false, null]
       }
-      updatedBoard[boardIndex] = { hue: 200 }
+      updatedBoard[boardIndex] = { hue: piece.hue }
     }
   }
 
@@ -248,3 +248,5 @@ export function mapRelativePositionToIndices({
   const rowIndex = Math.round((pointerYRelative / height) * boardSize)
   return { colIndex, rowIndex }
 }
+
+export const pieceFromSquares : (p: number[][]) => IPiece = p => ({ squares: p, hue: 0 })

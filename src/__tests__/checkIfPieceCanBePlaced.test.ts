@@ -1,5 +1,5 @@
 import type { IBoard, IPiece, ISquare } from "../model"
-import { checkIfPieceCanBePlaced } from "../util"
+import { checkIfPieceCanBePlaced, pieceFromSquares } from "../util"
 
 
 const _ = null
@@ -7,10 +7,10 @@ const s: ISquare = { hue: 200 }
 
 describe("checkIfPieceCanBePlaced", () => {
   it("returns true if the piece can be placed", () => {
-    const piece: IPiece = [
+    const piece: IPiece = pieceFromSquares([
       [1,1],
       [1,1]
-    ]
+    ])
 
     const board: IBoard = [
       s, s, s, s, s, s, s, s,
@@ -26,10 +26,10 @@ describe("checkIfPieceCanBePlaced", () => {
     expect(result).toBe(true)
   })
   it("returns true if the piece can be placed", () => {
-    const piece: IPiece = [
+    const piece: IPiece = pieceFromSquares([
       [1,1],
       [1,1]
-    ]
+    ])
 
     const board: IBoard = [
       _, _, s, s, s, s, s, s,
@@ -46,10 +46,10 @@ describe("checkIfPieceCanBePlaced", () => {
   })
 
   it("returns false if the piece cannot be placed", () => {
-    const piece: IPiece = [
+    const piece: IPiece = pieceFromSquares([
       [1,1],
       [1,1]
-    ]
+    ])
 
     const board: IBoard = [
       s, _, s, s, s, s, s, s,

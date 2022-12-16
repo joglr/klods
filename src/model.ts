@@ -14,7 +14,10 @@ export interface ISquare {
   hue: number
 }
 
-export type IPiece = number[][]
+export type IPiece = {
+  squares: number[][]
+  hue: number
+}
 
 export interface IState {
   highscore: number
