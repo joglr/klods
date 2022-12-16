@@ -21,10 +21,10 @@ export const getSquareSizePixels = () => window.innerHeight * (squareSize / 100)
 export const boardSize = Number(rootStyles.getPropertyValue("--board-size"))
 
 export const hues = [
-  0,
   60,
   120,
   180,
+  240,
   300
 ]
 
