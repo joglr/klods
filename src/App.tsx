@@ -216,7 +216,7 @@ export default function App() {
                               "--yt": `calc(${pointer.pos[1]}px - ${
                                 getOffsetFromPiece(piece, pointer.type)[1]
                               } * var(--square-size))`,
-                              opacity: fit ? 0.3 : 1,
+                              opacity: fit ? 0 : 1,
                             }
                           : {}),
                       }}
