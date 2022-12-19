@@ -23,7 +23,7 @@ jobs:
         cache-bin: true
 
     - run: bun install
-    - run: bun run build --if-present
+    - run: bun run build
     - run: bun run lint
     - run: bun test --coverage
     - run: bun run lint
