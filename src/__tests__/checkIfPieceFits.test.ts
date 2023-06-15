@@ -20,6 +20,7 @@ describe("checkIfPieceFits", () => {
       userPieces: [[[1,1],[0,1]],[[1,1],[1,1],[1,1]],[[0,0,1],[0,0,1],[1,1,1]]].map(pieceFromSquares),
       selectedPieceIndex: 2,
       score: 0,
+      bag: []
     }
 
     const succeesSquareLocation1: [number, number] = [5,5]
@@ -46,6 +47,7 @@ describe("checkIfPieceFits", () => {
       userPieces: [[[1,1],[1,0]],[[1,1,1,1],[1,0,0,0]],[[1,1],[0,1],[0,1],[0,1]]].map(pieceFromSquares),
       selectedPieceIndex: 0,
       score: 0,
+      bag: []
     }
 
     const failureSquareLocation: [number, number] = [6,6]
