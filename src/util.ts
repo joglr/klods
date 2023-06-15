@@ -1,3 +1,4 @@
+import { hues } from "./constants"
 import type { IBoard, IPiece, IState } from "./model"
 import { pieces } from "./pieces"
 
@@ -17,6 +18,12 @@ export const drawN = <T>(values: T[], amount = 1) =>
     .slice()
     .sort(() => Math.random() - 0.5)
     .slice(0, amount)
+
+export const colorizePieces = (pieces: number[][][]) =>
+  pieces.map((p) => ({
+    squares: p,
+    hue: drawN(hues, 1)[0],
+  }))
 
 export function drawPiecesAndRefillBag(currentBag: number[][][]) {
   if (currentBag.length <= 3) {
@@ -264,4 +271,7 @@ export function mapRelativePositionToIndices({
   return { colIndex, rowIndex }
 }
 
-export const pieceFromSquares : (p: number[][]) => IPiece = p => ({ squares: p, hue: 0 })
+export const pieceFromSquares: (p: number[][]) => IPiece = (p) => ({
+  squares: p,
+  hue: 0,
+})

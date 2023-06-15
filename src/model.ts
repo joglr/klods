@@ -25,4 +25,5 @@ export interface IState {
   userPieces: (IPiece | null)[]
   selectedPieceIndex: number | null
   score: number
+  bag: number[][][]
 }

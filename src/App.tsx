@@ -1,11 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import './App.css'
-import { pieces } from './pieces'
-import type { IBoard, IPiece, IState } from './model'
-import { Square } from './components/Square'
-import { checkIfPieceFitsAndUpdateBoard, clearFullRows, createEmptyBoard, generateFitTest, getPieceHeight, getPieceWidth, snapPositionToBoard, drawN, calculateLocationFromIndex, createRainbowBoard, checkIfPieceCanBePlaced } from './util'
-import { boardSize, getSquareSizePixels, highscoreLocalStorageKey, hues } from './constants'
-import { usePointerExit } from './hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import "./App.css"
+import { pieces } from "./pieces"
+import type { IBoard, IPiece, IState } from "./model"
+import { Square } from "./components/Square"
+import {
+  checkIfPieceFitsAndUpdateBoard,
+  clearFullRows,
+  createEmptyBoard,
+  generateFitTest,
+  getPieceHeight,
+  getPieceWidth,
+  snapPositionToBoard,
+  drawN,
+  calculateLocationFromIndex,
+  createRainbowBoard,
+  checkIfPieceCanBePlaced,
+  drawPiecesAndRefillBag,
+  colorizePieces,
+} from "./util"
+import {
+  boardSize,
+  getSquareSizePixels,
+  highscoreLocalStorageKey,
+  hues,
+} from "./constants"
+import { usePointerExit } from "./hooks"
 
 const INITIAL_UNDOSLEFT = 3
 
@@ -16,22 +35,21 @@ export default function App() {
   const [queue, setQueue] = useState<(IPiece | null)[] | null>(null)
   const boardRef = useRef<HTMLDivElement>(null)
   const [pointer, setPointer] = useState<{
-    offset: [number, number],
-    pos: [number, number],
+    offset: [number, number]
+    pos: [number, number]
     type: string
   }>({
     offset: [0, 0],
     pos: [0, 0],
-    type: "touch"
+    type: "touch",
   })
   const mousePosWithOffset = useMemo<[number, number]>(() => {
     const [selectedPiece] = tryGetPieceFromState(state)
-    const offsets = selectedPiece ? getOffsetFromPieceInPixels(selectedPiece, pointer.type) : [0, 0]
+    const offsets = selectedPiece
+      ? getOffsetFromPieceInPixels(selectedPiece, pointer.type)
+      : [0, 0]
 
-    return ([
-      pointer.pos[0] - offsets[0],
-      pointer.pos[1] - offsets[1]
-    ])
+    return [pointer.pos[0] - offsets[0], pointer.pos[1] - offsets[1]]
   }, [pointer.pos, pointer.type, state])
 
   const { pieceCanBePlacedValues, gameOver } = useMemo(() => {
@@ -50,9 +68,21 @@ export default function App() {
       throw Error("Cannot snap position when board does not exist")
     }
     const { width, height, x, y } = boardRef.current.getBoundingClientRect()
-    const { colIndex, rowIndex } = snapPositionToBoard({ boardSize, width, height, x, y, pageX: mousePosWithOffset[0], pageY: mousePosWithOffset[1] })
-    const [fit, board] = checkIfPieceFitsAndUpdateBoard(
-      { board: state.board, piece: selectedPiece, squareLocation: [colIndex, rowIndex], boardSize }    )
+    const { colIndex, rowIndex } = snapPositionToBoard({
+      boardSize,
+      width,
+      height,
+      x,
+      y,
+      pageX: mousePosWithOffset[0],
+      pageY: mousePosWithOffset[1],
+    })
+    const [fit, board] = checkIfPieceFitsAndUpdateBoard({
+      board: state.board,
+      piece: selectedPiece,
+      squareLocation: [colIndex, rowIndex],
+      boardSize,
+    })
     return [fit, fit ? board : state.board]
   }, [gameOver, mousePosWithOffset, state])
 
@@ -61,10 +91,14 @@ export default function App() {
     rowsToClear: number[]
     colsToClear: number[]
   }>(() => {
-    const { newBoard: boardWithClearedRows, rowsToClear, colsToClear } = fit
+    const {
+      newBoard: boardWithClearedRows,
+      rowsToClear,
+      colsToClear,
+    } = fit
       ? clearFullRows(boardWithPreview, boardSize)
       : { newBoard: state.board, rowsToClear: [], colsToClear: [] }
-    return { boardWithClearedRows, rowsToClear, colsToClear}
+    return { boardWithClearedRows, rowsToClear, colsToClear }
   }, [boardWithPreview, fit, state.board])
 
   useEffect(() => {
@@ -73,9 +107,9 @@ export default function App() {
   }, [state.score, state.highscore])
 
   const resetGame = () => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...getInitialState(),
-      highscore: Math.max(prevState.highscore, prevState.score)
+      highscore: Math.max(prevState.highscore, prevState.score),
     }))
     setUndosLeft(INITIAL_UNDOSLEFT)
     setPrevState(getInitialState)
@@ -83,65 +117,82 @@ export default function App() {
 
   const undo = () => {
     // console.log(Object.is(prevState, state)) // This gives false..
-    if(JSON.stringify(prevState) !== JSON.stringify(state)){
+    if (JSON.stringify(prevState) !== JSON.stringify(state)) {
       setState(prevState)
       setQueue(state.userPieces)
       setUndosLeft(undosLeft - 1)
     }
   }
 
-  const pointerUpHandler = useCallback(function pointerUpHandler() {
-    if (!boardRef.current) return
-    if (!fit) {
-      setState(p => ({...p, selectedPieceIndex: null}))
-      return
-    }
+  const pointerUpHandler = useCallback(
+    function pointerUpHandler() {
+      if (!boardRef.current) return
+      if (!fit) {
+        setState((p) => ({ ...p, selectedPieceIndex: null }))
+        return
+      }
 
-    // const squareLocation: [number, number] = [0, 0]
-    // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
+      // const squareLocation: [number, number] = [0, 0]
+      // const [shouldSucceed, newTest] = generateFitTest(state, squareLocation)
 
-    const [selectedPiece, selectedPieceIndex] = tryGetPieceFromState(state)
-    if (!selectedPiece) return
+      const [selectedPiece, selectedPieceIndex] = tryGetPieceFromState(state)
+      if (!selectedPiece) return
 
-    const { newBoard, rowsAndColsCleared } = clearFullRows(boardWithPreview, boardSize)
-    setState(prevState => {
-      const userPieces = prevState.userPieces.map((piece, i) => i === selectedPieceIndex ? null : piece)
-      return ({
-        board: newBoard,
-        userPieces: userPieces.every(p => p == null)
-          ? getNewPieces(queue)
-          : userPieces,
-        selectedPieceIndex: null,
-        score: prevState.score + rowsAndColsCleared * boardSize,
-        highscore: prevState.highscore
+      const { newBoard, rowsAndColsCleared } = clearFullRows(
+        boardWithPreview,
+        boardSize
+      )
+      setState((prevState) => {
+        const userPieces = prevState.userPieces.map((piece, i) =>
+          i === selectedPieceIndex ? null : piece
+        )
+
+        const base = {
+          board: newBoard,
+          selectedPieceIndex: null,
+          score: prevState.score + rowsAndColsCleared * boardSize,
+          highscore: prevState.highscore,
+        }
+
+        if (userPieces.every((p) => p == null)) {
+          const { bag, userPieces } = drawPiecesAndRefillBag(prevState.bag)
+          return {
+            ...base,
+            userPieces: colorizePieces(userPieces),
+            bag,
+          }
+        }
+
+        return {
+          ...base,
+          userPieces: userPieces,
+          bag: prevState.bag,
+        }
       })
-    })
 
-    setQueue(null)
+      setQueue(null)
 
-    // if (shouldSucceed !== fit) {
-    //   prompt("red test", newTest)
-    // }
-  }, [boardWithPreview, fit, queue, state])
+      // if (shouldSucceed !== fit) {
+      //   prompt("red test", newTest)
+      // }
+    },
+    [boardWithPreview, fit, state]
+  )
 
   usePointerExit(pointerUpHandler)
 
   return (
-    <div className="app"
-      onPointerMove={e =>
-        {
-          if (state.selectedPieceIndex == null ) return
-          setPointer(p => ({
-            ...p,
-            pos: [
-              e.pageX,
-              e.pageY
-            ]
-          }))
-        }
-      }
+    <div
+      className="app"
+      onPointerMove={(e) => {
+        if (state.selectedPieceIndex == null) return
+        setPointer((p) => ({
+          ...p,
+          pos: [e.pageX, e.pageY],
+        }))
+      }}
       onPointerUp={pointerUpHandler}
-      >
+    >
       <div className="app-wrapper">
         <header className="header">
           <h1>Klods</h1>
@@ -155,17 +206,24 @@ export default function App() {
         </header>
         <main className="game">
           <div className="board-wrapper">
-            <div
-              className="board"
-              ref={boardRef}
-            >
-              {boardWithPreview.map((square, i) =>
-                {
-                  const [colIndex, rowIndex] = calculateLocationFromIndex(i, boardSize)
-                  const shouldBlink = rowsToClear.includes(rowIndex) || colsToClear.includes(colIndex)
-                  return <Square key={i} square={square} blink={shouldBlink} hasTransition={gameOver} />
-                }
-              )}
+            <div className="board" ref={boardRef}>
+              {boardWithPreview.map((square, i) => {
+                const [colIndex, rowIndex] = calculateLocationFromIndex(
+                  i,
+                  boardSize
+                )
+                const shouldBlink =
+                  rowsToClear.includes(rowIndex) ||
+                  colsToClear.includes(colIndex)
+                return (
+                  <Square
+                    key={i}
+                    square={square}
+                    blink={shouldBlink}
+                    hasTransition={gameOver}
+                  />
+                )
+              })}
             </div>
           </div>
           {gameOver ? (
@@ -201,9 +259,10 @@ export default function App() {
                     }}
                   >
                     <div
-                      className={state.selectedPieceIndex === pieceIndex
-                        ? "piece-grid selected"
-                        : "piece-grid"
+                      className={
+                        state.selectedPieceIndex === pieceIndex
+                          ? "piece-grid selected"
+                          : "piece-grid"
                       }
                       style={{
                         gridTemplateColumns: `repeat(${piece.squares[0].length}, 1fr)`,
@@ -229,7 +288,7 @@ export default function App() {
                               square={
                                 fill === 1
                                   ? pieceCanBePlacedValues[pieceIndex]
-                                    ? { hue: piece.hue}
+                                    ? { hue: piece.hue }
                                     : { hue: 0 }
                                   : null
                               }
@@ -252,30 +311,38 @@ export default function App() {
 
 function tryGetPieceFromState(state: IState): [IPiece, number] | [null, null] {
   const selectedPieceIndex = state.selectedPieceIndex
-  if(selectedPieceIndex === null) return [null, null]
+  if (selectedPieceIndex === null) return [null, null]
   const selectedPiece = state.userPieces[selectedPieceIndex]
-  if(!selectedPiece) return [null, null]
+  if (!selectedPiece) return [null, null]
   return [selectedPiece, selectedPieceIndex]
 }
 
-const getOffsetFromPiece: (p: IPiece, pointerType: string) => [number, number] = (p, pt) => ([
+const getOffsetFromPiece: (
+  p: IPiece,
+  pointerType: string
+) => [number, number] = (p, pt) => [
   getPieceWidth(p) / 2,
-  getPieceHeight(p) + (pt === "mouse" ? 0 : 5)
-])
+  getPieceHeight(p) + (pt === "mouse" ? 0 : 5),
+]
 
-const getOffsetFromPieceInPixels: (p: IPiece, pointerType: string) => [number, number] = (p, pt) =>
-  getOffsetFromPiece(p, pt).map(v => v * getSquareSizePixels()) as [number, number]
+const getOffsetFromPieceInPixels: (
+  p: IPiece,
+  pointerType: string
+) => [number, number] = (p, pt) =>
+  getOffsetFromPiece(p, pt).map((v) => v * getSquareSizePixels()) as [
+    number,
+    number
+  ]
 
-const getInitialState: () => IState = () => ({
-  highscore: Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
-  board: createEmptyBoard(boardSize),
-  userPieces: getNewPieces(null),
-  selectedPieceIndex: null,
-  score: 0
-})
-
-const getNewPieces = (_queue: (IPiece | null)[] | null) : (IPiece | null)[] => drawN(pieces, 3)
-  .map(p => ({
-    squares: p,
-    hue: drawN(hues, 1)[0]
-  }))
+const getInitialState: () => IState = () => {
+  const { userPieces, bag } = drawPiecesAndRefillBag([])
+  return {
+    highscore:
+      Number(window.localStorage.getItem(highscoreLocalStorageKey)) ?? 0,
+    board: createEmptyBoard(boardSize),
+    userPieces: colorizePieces(userPieces),
+    bag,
+    selectedPieceIndex: null,
+    score: 0,
+  }
+}
